@@ -60,3 +60,30 @@ fn main() {
     let similarity_score = similarity_score(input_contents);
     println!("Similarity score: {similarity_score}");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const TEST_INPUT_CONTENTS: &str = "3   4
+    4   3
+    2   5
+    1   3
+    3   9
+    3   3
+    ";
+
+    #[test]
+    fn test_distances_sum() {
+        let expected = 11;
+        let actual = distances_sum(TEST_INPUT_CONTENTS);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_similarity_score() {
+        let expected = 31;
+        let actual = similarity_score(TEST_INPUT_CONTENTS);
+        assert_eq!(expected, actual);
+    }
+}
