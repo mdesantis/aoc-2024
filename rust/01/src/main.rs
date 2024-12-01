@@ -7,7 +7,6 @@ const INPUT_CONTENTS: &str = include_str!("../../../inputs/01/input");
 fn distances_sum(input_contents: &str) -> i32 {
     let mut lefts = Vec::new();
     let mut rights = Vec::new();
-    let mut distances_sum = 0;
 
     for line in input_contents.lines() {
         for (i, slice) in line.split_whitespace().enumerate() {
@@ -23,11 +22,10 @@ fn distances_sum(input_contents: &str) -> i32 {
     lefts.sort();
     rights.sort();
 
-    for (i, left) in lefts.iter().enumerate() {
-        let right = rights[i];
-        let distance = (left - right).abs();
-        distances_sum += distance;
-    }
+    let distances_sum = lefts
+        .iter()
+        .zip(rights.iter())
+        .fold(0, |acc, (left, right)| acc + (left - right).abs());
 
     distances_sum
 }
@@ -35,7 +33,6 @@ fn distances_sum(input_contents: &str) -> i32 {
 fn similarity_score(input_contents: &str) -> i32 {
     let mut lefts = Vec::new();
     let mut rights = Vec::new();
-    let mut similarity_score = 0;
 
     for line in input_contents.lines() {
         for (i, slice) in line.split_whitespace().enumerate() {
@@ -48,11 +45,11 @@ fn similarity_score(input_contents: &str) -> i32 {
         }
     }
 
-    for left in lefts.iter() {
-        let count = rights.iter().filter(|&right| right == left).count();
+    let similarity_score = lefts.iter().fold(0, |acc, left| {
+        let single_similarity_score = rights.iter().filter(|&right| right == left).count();
 
-        similarity_score += left * (count as i32);
-    }
+        acc + left * (single_similarity_score as i32)
+    });
 
     similarity_score
 }
@@ -98,6 +95,7 @@ mod tests {
     fn bench_distances_sum(bencher: &mut Bencher) {
         bencher.iter(|| black_box(distances_sum(black_box(BENCH_INPUT_CONTENTS))));
     }
+
     #[bench]
     fn bench_similarity_score(bencher: &mut Bencher) {
         bencher.iter(|| black_box(similarity_score(black_box(BENCH_INPUT_CONTENTS))));
