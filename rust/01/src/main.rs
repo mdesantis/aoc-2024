@@ -2,11 +2,14 @@
 
 extern crate test;
 
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/01/input");
 
 fn distances_sum(input_contents: &str) -> i32 {
-    let mut lefts = Vec::new();
-    let mut rights = Vec::new();
+    let mut lefts = BinaryHeap::new();
+    let mut rights = BinaryHeap::new();
     let mut distances_sum = 0;
 
     for line in input_contents.lines() {
@@ -14,18 +17,16 @@ fn distances_sum(input_contents: &str) -> i32 {
             let value = slice.parse::<i32>().unwrap();
 
             match i % 2 {
-                0 => lefts.push(value),
-                _ => rights.push(value),
+                0 => lefts.push(Reverse(value)),
+                _ => rights.push(Reverse(value)),
             }
         }
     }
 
-    lefts.sort();
-    rights.sort();
-
-    for (i, left) in lefts.iter().enumerate() {
-        let right = rights[i];
+    while let Some(Reverse(left)) = lefts.pop() {
+        let Reverse(right) = rights.pop().unwrap();
         let distance = (left - right).abs();
+
         distances_sum += distance;
     }
 
