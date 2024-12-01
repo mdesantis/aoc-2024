@@ -1,0 +1,3 @@
+[package]
+name = "aoc_2024_01"
+edition.workspace = true
