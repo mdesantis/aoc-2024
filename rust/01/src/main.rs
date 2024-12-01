@@ -1,5 +1,7 @@
 #![feature(test)]
 
+use std::collections::HashMap;
+
 extern crate test;
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/01/input");
@@ -48,10 +50,15 @@ fn similarity_score(input_contents: &str) -> i32 {
         }
     }
 
-    for left in lefts.iter() {
-        let count = rights.iter().filter(|&right| right == left).count();
+    let mut similarity_score_map = HashMap::new();
 
-        similarity_score += left * (count as i32);
+    for left in lefts.iter() {
+        let single_similarity_score = similarity_score_map.entry(left).or_insert_with(|| {
+            let count = rights.iter().filter(|&right| right == left).count();
+            left * (count as i32)
+        });
+
+        similarity_score += *single_similarity_score;
     }
 
     similarity_score
