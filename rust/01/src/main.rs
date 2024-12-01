@@ -1,3 +1,9 @@
+#![feature(test)]
+
+extern crate test;
+
+const INPUT_CONTENTS: &str = include_str!("../../../inputs/01/input");
+
 fn distances_sum(input_contents: &str) -> i32 {
     let mut lefts = Vec::new();
     let mut rights = Vec::new();
@@ -52,18 +58,18 @@ fn similarity_score(input_contents: &str) -> i32 {
 }
 
 fn main() {
-    let input_contents = include_str!("../../../inputs/01/input");
-
-    let distances_sum = distances_sum(input_contents);
+    let distances_sum = distances_sum(INPUT_CONTENTS);
     println!("Distances sum: {distances_sum}");
 
-    let similarity_score = similarity_score(input_contents);
+    let similarity_score = similarity_score(INPUT_CONTENTS);
     println!("Similarity score: {similarity_score}");
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::hint::black_box;
+    use test::Bencher;
 
     const TEST_INPUT_CONTENTS: &str = "3   4
     4   3
@@ -72,6 +78,7 @@ mod tests {
     3   9
     3   3
     ";
+    const BENCH_INPUT_CONTENTS: &str = INPUT_CONTENTS;
 
     #[test]
     fn test_distances_sum() {
@@ -85,5 +92,14 @@ mod tests {
         let expected = 31;
         let actual = similarity_score(TEST_INPUT_CONTENTS);
         assert_eq!(expected, actual);
+    }
+
+    #[bench]
+    fn bench_distances_sum(bencher: &mut Bencher) {
+        bencher.iter(|| black_box(distances_sum(black_box(BENCH_INPUT_CONTENTS))));
+    }
+    #[bench]
+    fn bench_similarity_score(bencher: &mut Bencher) {
+        bencher.iter(|| black_box(similarity_score(black_box(BENCH_INPUT_CONTENTS))));
     }
 }
