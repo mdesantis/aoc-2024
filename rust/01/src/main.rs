@@ -1,6 +1,4 @@
-fn part_1() {
-    let input_contents = include_str!("../../../inputs/01/input");
-
+fn distances_sum(input_contents: &str) -> i32 {
     let mut lefts = Vec::new();
     let mut rights = Vec::new();
     let mut distances_sum = 0;
@@ -25,12 +23,10 @@ fn part_1() {
         distances_sum += distance;
     }
 
-    println!("distances sum: {distances_sum:?}");
+    distances_sum
 }
 
-fn part_2() {
-    let input_contents = include_str!("../../../inputs/01/input");
-
+fn similarity_score(input_contents: &str) -> i32 {
     let mut lefts = Vec::new();
     let mut rights = Vec::new();
     let mut similarity_score = 0;
@@ -52,10 +48,15 @@ fn part_2() {
         similarity_score += left * (count as i32);
     }
 
-    println!("similarity score: {similarity_score:?}");
+    similarity_score
 }
 
 fn main() {
-    part_1();
-    part_2();
+    let input_contents = include_str!("../../../inputs/01/input");
+
+    let distances_sum = distances_sum(input_contents);
+    println!("Distances sum: {distances_sum}");
+
+    let similarity_score = similarity_score(input_contents);
+    println!("Similarity score: {similarity_score}");
 }
