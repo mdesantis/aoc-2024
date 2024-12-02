@@ -46,19 +46,23 @@ fn problem_dampener_levels<'a>(levels: &'a [i32]) -> impl Iterator<Item = Vec<i3
 fn safe_reports_amount(input_contents: &str, problem_dampener_module_enabled: bool) -> i32 {
     input_contents
         .lines()
-        .filter(|line| {
+        .filter_map(|line| {
             let levels = line
                 .split_whitespace()
                 .map(|slice| slice.parse::<i32>().unwrap())
                 .collect::<Vec<_>>();
 
-            match problem_dampener_module_enabled {
-                false => is_report_safe(&levels),
-                _ => {
-                    is_report_safe(&levels)
-                        || problem_dampener_levels(&levels).any(|levels| is_report_safe(&levels))
-                }
+            if is_report_safe(&levels) {
+                return Some(());
             }
+
+            if problem_dampener_module_enabled {
+                return problem_dampener_levels(&levels)
+                    .any(|levels| is_report_safe(&levels))
+                    .then_some(());
+            }
+
+            None
         })
         .count() as i32
 }
