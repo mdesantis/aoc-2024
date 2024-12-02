@@ -1,4 +1,4 @@
-#![feature(test)]
+#![feature(iter_array_chunks, test)]
 
 extern crate test;
 
@@ -9,13 +9,13 @@ fn distances_sum(input_contents: &str) -> i32 {
     let mut rights = Vec::new();
 
     for line in input_contents.lines() {
-        for (i, slice) in line.split_whitespace().enumerate() {
-            let value = slice.parse::<i32>().unwrap();
-
-            match i % 2 {
-                0 => lefts.push(value),
-                _ => rights.push(value),
-            }
+        for [left_value, right_value] in line
+            .split_whitespace()
+            .map(|slice| slice.parse::<i32>().unwrap())
+            .array_chunks()
+        {
+            lefts.push(left_value);
+            rights.push(right_value);
         }
     }
 
