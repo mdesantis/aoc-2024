@@ -2,7 +2,7 @@ const INPUT_CONTENTS: &str = include_str!("../../../inputs/02/input");
 
 use std::cmp::Ordering;
 
-fn is_report_safe(levels: &Vec<i32>) -> bool {
+fn is_report_safe(levels: &[i32]) -> bool {
     let mut maybe_prev_level: Option<i32> = None;
     let mut maybe_prev_report_ordering: Option<Ordering> = None;
     let mut report_ordering;
@@ -33,9 +33,9 @@ fn is_report_safe(levels: &Vec<i32>) -> bool {
     true
 }
 
-fn problem_dampener_levels<'a>(levels: &'a Vec<i32>) -> impl Iterator<Item = Vec<i32>> + 'a {
+fn problem_dampener_levels<'a>(levels: &'a [i32]) -> impl Iterator<Item = Vec<i32>> + 'a {
     (0..levels.len()).map(|i| {
-        let mut problem_dampener_level = (*levels).clone();
+        let mut problem_dampener_level = levels.to_vec();
 
         problem_dampener_level.remove(i);
 
