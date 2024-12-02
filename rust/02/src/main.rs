@@ -3,31 +3,22 @@ const INPUT_CONTENTS: &str = include_str!("../../../inputs/02/input");
 use std::cmp::Ordering;
 
 fn is_report_safe(levels: &[i32]) -> bool {
-    let mut maybe_prev_level: Option<i32> = None;
-    let mut maybe_prev_report_ordering: Option<Ordering> = None;
-    let mut report_ordering;
+    let prev_level = levels[0];
+    let mut prev_report_ordering = prev_level.cmp(&levels[1]);
 
-    for (i, level) in levels.iter().enumerate() {
-        if i > 0 {
-            let prev_level = maybe_prev_level.unwrap();
-            report_ordering = prev_level.cmp(level);
+    for pair in levels.windows(2) {
+        let (current, next) = (pair[0], pair[1]);
+        let report_ordering = current.cmp(&next);
 
-            if report_ordering == Ordering::Equal {
-                return false;
-            }
-
-            if (prev_level - level).abs() > 3 {
-                return false;
-            }
-
-            if i > 1 && maybe_prev_report_ordering.unwrap() != report_ordering {
-                return false;
-            }
-
-            maybe_prev_report_ordering = Some(report_ordering);
+        if report_ordering == Ordering::Equal || (current - next).abs() > 3 {
+            return false;
         }
 
-        maybe_prev_level = Some(*level);
+        if report_ordering != prev_report_ordering {
+            return false;
+        }
+
+        prev_report_ordering = report_ordering;
     }
 
     true
