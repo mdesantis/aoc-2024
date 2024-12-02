@@ -4,20 +4,17 @@ extern crate test;
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/01/input");
 
-fn distances_sum(input_contents: &str) -> i32 {
-    let mut lefts = Vec::new();
-    let mut rights = Vec::new();
+fn lefts_and_rights(input_contents: &str) -> (Vec<i32>, Vec<i32>) {
+    input_contents
+        .lines()
+        .flat_map(|line| line.split_whitespace().map(|v| v.parse::<i32>().unwrap()))
+        .array_chunks::<2>()
+        .map(|[left, right]| (left, right))
+        .unzip()
+}
 
-    for line in input_contents.lines() {
-        for [left_value, right_value] in line
-            .split_whitespace()
-            .map(|slice| slice.parse::<i32>().unwrap())
-            .array_chunks()
-        {
-            lefts.push(left_value);
-            rights.push(right_value);
-        }
-    }
+fn distances_sum(input_contents: &str) -> i32 {
+    let (mut lefts, mut rights) = lefts_and_rights(input_contents);
 
     lefts.sort();
     rights.sort();
@@ -31,19 +28,7 @@ fn distances_sum(input_contents: &str) -> i32 {
 }
 
 fn similarity_score(input_contents: &str) -> i32 {
-    let mut lefts = Vec::new();
-    let mut rights = Vec::new();
-
-    for line in input_contents.lines() {
-        for (i, slice) in line.split_whitespace().enumerate() {
-            let value = slice.parse::<i32>().unwrap();
-
-            match i % 2 {
-                0 => lefts.push(value),
-                _ => rights.push(value),
-            }
-        }
-    }
+    let (lefts, rights) = lefts_and_rights(input_contents);
 
     let similarity_score = lefts.iter().fold(0, |acc, left| {
         let single_similarity_score = rights.iter().filter(|&right| right == left).count();
