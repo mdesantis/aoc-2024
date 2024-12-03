@@ -22,9 +22,9 @@ fn distances_sum(input_contents: &str) -> i32 {
     let distances_sum = lefts
         .iter()
         .zip(rights.iter())
-        .fold(0, |acc, (left, right)| acc + (left - right).abs());
+        .fold(0, |acc, (left, right)| acc + left.abs_diff(*right));
 
-    distances_sum
+    distances_sum as i32
 }
 
 fn similarity_score(input_contents: &str) -> i32 {

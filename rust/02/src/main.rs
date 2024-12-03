@@ -10,7 +10,7 @@ fn is_report_safe(levels: &[i32]) -> bool {
         let (current, next) = (pair[0], pair[1]);
         let report_ordering = current.cmp(&next);
 
-        if report_ordering == Ordering::Equal || (current - next).abs() > 3 {
+        if report_ordering == Ordering::Equal || current.abs_diff(next) > 3 {
             return false;
         }
 
