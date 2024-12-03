@@ -22,35 +22,39 @@ fn enabled_multiplications_sum(input_contents: &str) -> i32 {
     .unwrap();
 
     let mut enabled = true;
-    let mut sum = 0;
 
-    for captures in regex.captures_iter(input_contents) {
-        let maybe_first = captures.name("first");
-        let maybe_second = captures.name("second");
-        let maybe_disabler = captures.name("disabler");
-        let maybe_enabler = captures.name("enabler");
+    regex
+        .captures_iter(input_contents)
+        .filter_map(|captures| {
+            let maybe_first = captures.name("first");
+            let maybe_second = captures.name("second");
+            let maybe_disabler = captures.name("disabler");
+            let maybe_enabler = captures.name("enabler");
 
-        if maybe_enabler.is_some() {
-            enabled = true
-        }
+            if maybe_enabler.is_some() {
+                enabled = true;
+                return None;
+            }
 
-        if maybe_disabler.is_some() {
-            enabled = false
-        }
+            if maybe_disabler.is_some() {
+                enabled = false;
+                return None;
+            }
 
-        if enabled {
-            if let (Some(first), Some(second)) = (maybe_first, maybe_second) {
-                {
-                    let result = first.as_str().parse::<i32>().unwrap()
-                        * second.as_str().parse::<i32>().unwrap();
+            if enabled {
+                if let (Some(first), Some(second)) = (maybe_first, maybe_second) {
+                    {
+                        let result = first.as_str().parse::<i32>().unwrap()
+                            * second.as_str().parse::<i32>().unwrap();
 
-                    sum += result
+                        return Some(result);
+                    }
                 }
             }
-        }
-    }
 
-    sum
+            None
+        })
+        .sum()
 }
 
 fn main() {
