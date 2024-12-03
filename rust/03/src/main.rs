@@ -26,30 +26,17 @@ fn enabled_multiplications_sum(input_contents: &str) -> i32 {
     regex
         .captures_iter(input_contents)
         .filter_map(|captures| {
-            let maybe_first = captures.name("first");
-            let maybe_second = captures.name("second");
-            let maybe_disabler = captures.name("disabler");
-            let maybe_enabler = captures.name("enabler");
-
-            if maybe_enabler.is_some() {
-                enabled = true;
-                return None;
-            }
-
-            if maybe_disabler.is_some() {
-                enabled = false;
-                return None;
-            }
+            enabled = match (captures.name("disabler"), captures.name("enabler")) {
+                (Some(_), _) => false,
+                (_, Some(_)) => true,
+                _ => enabled,
+            };
 
             if enabled {
-                if let (Some(first), Some(second)) = (maybe_first, maybe_second) {
-                    {
-                        let result = first.as_str().parse::<i32>().unwrap()
-                            * second.as_str().parse::<i32>().unwrap();
+                let first = captures.name("first")?.as_str().parse::<i32>().unwrap();
+                let second = captures.name("second")?.as_str().parse::<i32>().unwrap();
 
-                        return Some(result);
-                    }
-                }
+                return Some(first * second);
             }
 
             None
@@ -71,7 +58,6 @@ mod tests {
 
     const TEST_INPUT_CONTENTS: &str =
         "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
-
     const TEST_INPUT_CONTENTS_2: &str =
         "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
 
@@ -79,6 +65,7 @@ mod tests {
     fn test_multiplications_sum() {
         let expected = 161;
         let actual = multiplications_sum(TEST_INPUT_CONTENTS);
+
         assert_eq!(expected, actual);
     }
 
@@ -86,6 +73,7 @@ mod tests {
     fn test_enabled_multiplications_sum() {
         let expected = 48;
         let actual = enabled_multiplications_sum(TEST_INPUT_CONTENTS_2);
+
         assert_eq!(expected, actual);
     }
 }
