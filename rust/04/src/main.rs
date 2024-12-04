@@ -22,15 +22,15 @@ fn rotate_clockwise(input: &str) -> String {
             let char = chars[j][i];
 
             if j == 0 {
-                format!("{acc}{char}\n")
-            } else {
-                format!("{acc}{char}")
+                return format!("{acc}{char}\n");
             }
+
+            format!("{acc}{char}")
         })
 }
 
 fn slant(input: &str, direction: SlantDirection) -> String {
-    let rows = input.lines().collect::<Vec<_>>().len();
+    let rows = input.lines().count();
 
     input
         .lines()
@@ -95,32 +95,28 @@ fn crosses_amount(input_contents: &str) -> i32 {
         .iter()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
-    let mut amount = 0;
 
-    for i in 1..(cols - 1) {
-        for j in 1..(rows - 1) {
-            if chars[i][j] == 'A' {
-                let cross = match (
-                    chars[i - 1][j - 1],
-                    chars[i - 1][j + 1],
-                    chars[i + 1][j - 1],
-                    chars[i + 1][j + 1],
+    (1..(cols - 1))
+        .flat_map(|i| {
+            (1..(rows - 1)).filter({
+                let chars = &chars;
+
+                move |j| match (
+                    chars[i - 1][*j - 1],
+                    chars[i - 1][*j + 1],
+                    chars[i][*j],
+                    chars[i + 1][*j - 1],
+                    chars[i + 1][*j + 1],
                 ) {
-                    ('M', 'M', 'S', 'S') => Some(()),
-                    ('S', 'S', 'M', 'M') => Some(()),
-                    ('M', 'S', 'M', 'S') => Some(()),
-                    ('S', 'M', 'S', 'M') => Some(()),
-                    _ => None,
-                };
-
-                if cross.is_some() {
-                    amount += 1
+                    ('M', 'M', 'A', 'S', 'S') => true,
+                    ('S', 'S', 'A', 'M', 'M') => true,
+                    ('M', 'S', 'A', 'M', 'S') => true,
+                    ('S', 'M', 'A', 'S', 'M') => true,
+                    _ => false,
                 }
-            }
-        }
-    }
-
-    amount
+            })
+        })
+        .count() as i32
 }
 
 fn main() {
@@ -135,7 +131,7 @@ fn main() {
 mod tests {
     use super::*;
 
-    const TEST_INPUT_CONTENTS: &str = "....XXMAS.
+    const TEST_INPUT_CONTENTS_WORDS_AMOUNT: &str = "....XXMAS.
 .SAMXMS...
 ...S..A...
 ..A.A.MS.X
@@ -146,7 +142,7 @@ S.S.S.S.SS
 ..M.M.M.MM
 .X.X.XMASX
 ";
-    const TEST_INPUT_CONTENTS_2: &str = ".M.S......
+    const TEST_INPUT_CONTENTS_CROSSES_AMOUNT: &str = ".M.S......
 ..A..MSMS.
 .M.S.MAA..
 ..A.ASMSM.
@@ -161,7 +157,7 @@ M.M.M.M.M.
     #[test]
     fn test_words_amount() {
         let expected = 18;
-        let actual = words_amount(TEST_INPUT_CONTENTS);
+        let actual = words_amount(TEST_INPUT_CONTENTS_WORDS_AMOUNT);
 
         assert_eq!(expected, actual);
     }
@@ -169,7 +165,7 @@ M.M.M.M.M.
     #[test]
     fn test_crosses_amount() {
         let expected = 9;
-        let actual = crosses_amount(TEST_INPUT_CONTENTS_2);
+        let actual = crosses_amount(TEST_INPUT_CONTENTS_CROSSES_AMOUNT);
 
         assert_eq!(expected, actual);
     }
