@@ -40,11 +40,11 @@ fn similarity_score(input_contents: &str) -> i32 {
 }
 
 fn main() {
-    let distances_sum = distances_sum(INPUT_CONTENTS);
-    println!("Distances sum: {distances_sum}");
+    let result = distances_sum(INPUT_CONTENTS);
+    println!("Distances sum: {result}");
 
-    let similarity_score = similarity_score(INPUT_CONTENTS);
-    println!("Similarity score: {similarity_score}");
+    let result = similarity_score(INPUT_CONTENTS);
+    println!("Similarity score: {result}");
 }
 
 #[cfg(test)]

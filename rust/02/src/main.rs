@@ -59,19 +59,17 @@ fn safe_reports_amount(input_contents: &str, problem_dampener_module_enabled: bo
 }
 
 fn main() {
-    let safe_reports_amount_with_problem_dampener_module_disabled =
-        safe_reports_amount(INPUT_CONTENTS, false);
+    let result = safe_reports_amount(INPUT_CONTENTS, false);
     println!(
         "Safe reports amount with problem dampener module disabled: {}",
-        safe_reports_amount_with_problem_dampener_module_disabled
+        result
     );
 
-    let safe_reports_amount_with_problem_dampener_module_enabled =
-        safe_reports_amount(INPUT_CONTENTS, true);
+    let result = safe_reports_amount(INPUT_CONTENTS, true);
     println!(
         "Safe reports amount with problem dampener module enabled: {}",
-        safe_reports_amount_with_problem_dampener_module_enabled
-    )
+        result
+    );
 }
 
 #[cfg(test)]

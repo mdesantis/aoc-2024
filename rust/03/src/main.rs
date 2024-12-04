@@ -45,11 +45,11 @@ fn enabled_multiplications_sum(input_contents: &str) -> i32 {
 }
 
 fn main() {
-    let multiplications_sum = multiplications_sum(INPUT_CONTENTS);
-    println!("Multiplications sum: {multiplications_sum}");
+    let result = multiplications_sum(INPUT_CONTENTS);
+    println!("Multiplications sum: {result}");
 
-    let enabled_multiplications_sum = enabled_multiplications_sum(INPUT_CONTENTS);
-    println!("Enabled multiplications sum: {enabled_multiplications_sum}");
+    let result = enabled_multiplications_sum(INPUT_CONTENTS);
+    println!("Enabled multiplications sum: {result}");
 }
 
 #[cfg(test)]
