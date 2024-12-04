@@ -8,8 +8,6 @@ enum SlantDirection {
 }
 
 fn rotate_clockwise(input: &str) -> String {
-    let mut result = "".to_string();
-
     let lines = input.lines().collect::<Vec<_>>();
     let rows = lines.len();
     let cols = lines[0].len();
@@ -18,18 +16,17 @@ fn rotate_clockwise(input: &str) -> String {
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
-    for i in 0..cols {
-        for j in (0..rows).rev() {
+    (0..cols)
+        .flat_map(|i| (0..rows).rev().map(move |j| (i, j)))
+        .fold("".to_string(), |acc, (i, j)| {
             let char = chars[j][i];
 
-            result.push(char);
             if j == 0 {
-                result.push('\n');
+                format!("{acc}{char}\n")
+            } else {
+                format!("{acc}{char}")
             }
-        }
-    }
-
-    result
+        })
 }
 
 fn slant(input: &str, direction: SlantDirection) -> String {
