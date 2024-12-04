@@ -90,9 +90,48 @@ fn words_amount(input_contents: &str) -> i32 {
     .sum::<usize>() as i32
 }
 
+fn crosses_amount(input_contents: &str) -> i32 {
+    let lines = input_contents.lines().collect::<Vec<_>>();
+    let rows = lines.len();
+    let cols = lines[0].len();
+    let chars = lines
+        .iter()
+        .map(|line| line.chars().collect::<Vec<_>>())
+        .collect::<Vec<_>>();
+    let mut amount = 0;
+
+    for i in 1..(cols - 1) {
+        for j in 1..(rows - 1) {
+            if chars[i][j] == 'A' {
+                let cross = match (
+                    chars[i - 1][j - 1],
+                    chars[i - 1][j + 1],
+                    chars[i + 1][j - 1],
+                    chars[i + 1][j + 1],
+                ) {
+                    ('M', 'M', 'S', 'S') => Some(()),
+                    ('S', 'S', 'M', 'M') => Some(()),
+                    ('M', 'S', 'M', 'S') => Some(()),
+                    ('S', 'M', 'S', 'M') => Some(()),
+                    _ => None,
+                };
+
+                if cross.is_some() {
+                    amount += 1
+                }
+            }
+        }
+    }
+
+    amount
+}
+
 fn main() {
     let result = words_amount(INPUT_CONTENTS);
     println!("Words amount: {result}");
+
+    let result = crosses_amount(INPUT_CONTENTS);
+    println!("Crosses amount: {result}");
 }
 
 #[cfg(test)]
@@ -110,11 +149,30 @@ S.S.S.S.SS
 ..M.M.M.MM
 .X.X.XMASX
 ";
+    const TEST_INPUT_CONTENTS_2: &str = ".M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........
+";
 
     #[test]
     fn test_words_amount() {
         let expected = 18;
         let actual = words_amount(TEST_INPUT_CONTENTS);
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_crosses_amount() {
+        let expected = 9;
+        let actual = crosses_amount(TEST_INPUT_CONTENTS_2);
 
         assert_eq!(expected, actual);
     }
