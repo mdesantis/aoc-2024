@@ -19,20 +19,21 @@ fn rotate_clockwise(input: &str) -> String {
         .iter()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
+    let mut result = "".to_string();
 
-    (0..cols)
-        .flat_map(|i| (0..rows).rev().map(move |j| (i, j)))
-        .fold("".to_string(), |mut acc, (i, j)| {
+    for i in 0..cols {
+        for j in (0..rows).rev() {
             let char = chars[j][i];
 
-            acc.push(char);
+            result.push(char);
 
             if j == 0 {
-                acc.push('\n');
+                result.push('\n');
             }
+        }
+    }
 
-            acc
-        })
+    result
 }
 
 fn slant(input: &str, direction: SlantDirection) -> String {
