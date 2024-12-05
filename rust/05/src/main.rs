@@ -30,13 +30,15 @@ fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
     updates_input
         .lines()
         .filter_map(|line| {
-            is_updates_line_sorted(line, &rules).then(|| {
+            if is_updates_line_sorted(line, &rules) {
                 let updates_line_values = split_updates_line(line).collect::<Vec<_>>();
 
-                updates_line_values[updates_line_values.len() / 2]
+                return updates_line_values[updates_line_values.len() / 2]
                     .parse::<i32>()
-                    .unwrap()
-            })
+                    .ok();
+            }
+
+            None
         })
         .sum::<i32>()
 }
@@ -56,17 +58,17 @@ fn reordered_wrongly_ordered_updates_middle_pages_sum(input_contents: &str) -> i
     updates_input
         .lines()
         .filter_map(|line| {
-            let rules = &rules;
-
-            (!is_updates_line_sorted(line, rules)).then(move || {
+            if !is_updates_line_sorted(line, &rules) {
                 let mut updates_line_values = split_updates_line(line).collect::<Vec<_>>();
 
-                updates_line_values.sort_by(|a, b| sort_updates_line_values(a, b, rules));
+                updates_line_values.sort_by(|a, b| sort_updates_line_values(a, b, &rules));
 
-                updates_line_values[updates_line_values.len() / 2]
+                return updates_line_values[updates_line_values.len() / 2]
                     .parse::<i32>()
-                    .unwrap()
-            })
+                    .ok();
+            }
+
+            None
         })
         .sum::<i32>()
 }
