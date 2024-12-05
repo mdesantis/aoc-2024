@@ -58,13 +58,13 @@ fn slant_anticlockwise(input: &str) -> String {
 fn find_xmas_matches(input: &str) -> usize {
     let regex = Regex::new(r"XMAS").unwrap();
 
-    regex.find_iter(input).collect::<Vec<_>>().len()
+    regex.find_iter(input).count()
 }
 
 fn find_samx_matches(input: &str) -> usize {
     let regex = Regex::new(r"SAMX").unwrap();
 
-    regex.find_iter(input).collect::<Vec<_>>().len()
+    regex.find_iter(input).count()
 }
 
 fn words_amount(input_contents: &str) -> i32 {
@@ -101,18 +101,20 @@ fn crosses_amount(input_contents: &str) -> i32 {
             (1..(rows - 1)).filter({
                 let chars = &chars;
 
-                move |j| match (
-                    chars[i - 1][*j - 1],
-                    chars[i - 1][*j + 1],
-                    chars[i][*j],
-                    chars[i + 1][*j - 1],
-                    chars[i + 1][*j + 1],
-                ) {
-                    ('M', 'M', 'A', 'S', 'S') => true,
-                    ('S', 'S', 'A', 'M', 'M') => true,
-                    ('M', 'S', 'A', 'M', 'S') => true,
-                    ('S', 'M', 'A', 'S', 'M') => true,
-                    _ => false,
+                move |j| {
+                    matches!(
+                        (
+                            chars[i - 1][*j - 1],
+                            chars[i - 1][*j + 1],
+                            chars[i][*j],
+                            chars[i + 1][*j - 1],
+                            chars[i + 1][*j + 1],
+                        ),
+                        ('M', 'M', 'A', 'S', 'S')
+                            | ('S', 'S', 'A', 'M', 'M')
+                            | ('M', 'S', 'A', 'M', 'S')
+                            | ('S', 'M', 'A', 'S', 'M')
+                    )
                 }
             })
         })
