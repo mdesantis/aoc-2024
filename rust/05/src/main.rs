@@ -6,8 +6,7 @@ fn collect_rules(rules_input: &str) -> HashMap<&str, Vec<&str>> {
     let mut rules = HashMap::new();
 
     for line in rules_input.lines() {
-        let mut split = line.split("|");
-        let (greater, less) = (split.next().unwrap(), split.next().unwrap());
+        let (greater, less) = line.split_once("|").unwrap();
 
         rules
             .entry(greater)
@@ -30,8 +29,7 @@ fn is_updates_line_sorted(line: &str, rules: &HashMap<&str, Vec<&str>>) -> bool 
 }
 
 fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
-    let mut split = input_contents.split("\n\n");
-    let (rules_input, updates_input) = (split.next().unwrap(), split.next().unwrap());
+    let (rules_input, updates_input) = input_contents.split_once("\n\n").unwrap();
     let rules = collect_rules(rules_input);
 
     updates_input
@@ -57,8 +55,7 @@ fn sort_updates_line_values(a: &str, b: &str, rules: &HashMap<&str, Vec<&str>>) 
 }
 
 fn reordered_wrongly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
-    let mut split = input_contents.split("\n\n");
-    let (rules_input, updates_input) = (split.next().unwrap(), split.next().unwrap());
+    let (rules_input, updates_input) = input_contents.split_once("\n\n").unwrap();
     let rules = collect_rules(rules_input);
 
     updates_input
