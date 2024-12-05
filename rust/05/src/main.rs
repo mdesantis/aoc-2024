@@ -3,18 +3,13 @@ use std::{cmp::Ordering, collections::HashMap};
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/05/input");
 
 fn collect_rules(rules_input: &str) -> HashMap<&str, Vec<&str>> {
-    let mut rules = HashMap::new();
-
-    for line in rules_input.lines() {
-        let (greater, less) = line.split_once("|").unwrap();
-
-        rules
-            .entry(greater)
-            .and_modify(|entry: &mut Vec<_>| entry.push(less))
-            .or_insert(vec![less]);
-    }
-
-    rules
+    rules_input
+        .lines()
+        .map(|line| line.split_once("|").unwrap())
+        .fold(HashMap::new(), |mut acc, (greater, less)| {
+            acc.entry(greater).or_default().push(less);
+            acc
+        })
 }
 
 fn split_updates_line(updates_line: &str) -> std::str::Split<'_, &str> {
