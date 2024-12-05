@@ -1,6 +1,6 @@
-const INPUT_CONTENTS: &str = include_str!("../../../inputs/02/input");
-
 use std::cmp::Ordering;
+
+const INPUT_CONTENTS: &str = include_str!("../../../inputs/02/input");
 
 fn is_report_safe(levels: &[i32]) -> bool {
     let prev_level = levels[0];
