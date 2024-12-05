@@ -32,24 +32,10 @@ fn are_updates_line_values_sorted(
     updates_line_values: &[i32],
     rules: &HashMap<i32, Vec<i32>>,
 ) -> bool {
-    updates_line_values
-        .iter()
-        .enumerate()
-        .is_sorted_by(|(a_i, a_k), (b_i, b_k)| {
-            if *a_i == *b_i {
-                return true;
-            }
-
-            let (greater_value, lesser_value) = if *a_i < *b_i { (a_k, b_k) } else { (b_k, a_k) };
-
-            if let Some(lesser_rule_values) = rules.get(&lesser_value) {
-                return lesser_rule_values
-                    .iter()
-                    .all(|lesser_rule_value| *lesser_rule_value != **greater_value);
-            }
-
-            true
-        })
+    updates_line_values.is_sorted_by(|a, b| match rules.get(b) {
+        Some(b_rule_values) => b_rule_values.iter().all(|v| *v != *a),
+        _ => true,
+    })
 }
 
 fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
@@ -61,9 +47,9 @@ fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
         .lines()
         .filter_map(|line| {
             let updates_line_values = collect_updates_line_values(line);
+            let is_sorted = are_updates_line_values_sorted(&updates_line_values, &rules);
 
-            are_updates_line_values_sorted(&updates_line_values, &rules)
-                .then(|| updates_line_values[updates_line_values.len() / 2])
+            is_sorted.then(|| updates_line_values[updates_line_values.len() / 2])
         })
         .sum::<i32>()
 }
@@ -95,7 +81,6 @@ fn reordered_wrongly_ordered_updates_middle_pages_sum(input_contents: &str) -> i
         .lines()
         .filter_map(|line| {
             let mut updates_line_values = collect_updates_line_values(line);
-
             let rules = &rules;
 
             (!are_updates_line_values_sorted(&updates_line_values, rules)).then(move || {
