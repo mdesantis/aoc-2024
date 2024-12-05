@@ -18,15 +18,12 @@ fn collect_rules(rules_input: &str) -> HashMap<&str, Vec<&str>> {
     rules
 }
 
-fn collect_updates_line_values(updates_line: &str) -> Vec<&str> {
-    updates_line.split(",").collect::<Vec<_>>()
+fn split_updates_line(updates_line: &str) -> std::str::Split<'_, &str> {
+    updates_line.split(",")
 }
 
-fn are_updates_line_values_sorted(
-    updates_line_values: &[&str],
-    rules: &HashMap<&str, Vec<&str>>,
-) -> bool {
-    updates_line_values.is_sorted_by(|a, b| match rules.get(b) {
+fn is_updates_line_sorted(line: &str, rules: &HashMap<&str, Vec<&str>>) -> bool {
+    split_updates_line(line).is_sorted_by(|a, b| match rules.get(b) {
         Some(b_rule_values) => b_rule_values.iter().all(|v| *v != *a),
         _ => true,
     })
@@ -40,10 +37,9 @@ fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
     updates_input
         .lines()
         .filter_map(|line| {
-            let updates_line_values = collect_updates_line_values(line);
-            let is_sorted = are_updates_line_values_sorted(&updates_line_values, &rules);
+            is_updates_line_sorted(line, &rules).then(|| {
+                let updates_line_values = split_updates_line(line).collect::<Vec<_>>();
 
-            is_sorted.then(|| {
                 updates_line_values[updates_line_values.len() / 2]
                     .parse::<i32>()
                     .unwrap()
@@ -68,10 +64,11 @@ fn reordered_wrongly_ordered_updates_middle_pages_sum(input_contents: &str) -> i
     updates_input
         .lines()
         .filter_map(|line| {
-            let mut updates_line_values = collect_updates_line_values(line);
             let rules = &rules;
 
-            (!are_updates_line_values_sorted(&updates_line_values, rules)).then(move || {
+            (!is_updates_line_sorted(line, rules)).then(move || {
+                let mut updates_line_values = split_updates_line(line).collect::<Vec<_>>();
+
                 updates_line_values.sort_by(|a, b| sort_updates_line_values(a, b, rules));
 
                 updates_line_values[updates_line_values.len() / 2]
