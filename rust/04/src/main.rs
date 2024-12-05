@@ -22,14 +22,16 @@ fn rotate_clockwise(input: &str) -> String {
 
     (0..cols)
         .flat_map(|i| (0..rows).rev().map(move |j| (i, j)))
-        .fold("".to_string(), |acc, (i, j)| {
+        .fold("".to_string(), |mut acc, (i, j)| {
             let char = chars[j][i];
 
+            acc.push(char);
+
             if j == 0 {
-                return format!("{acc}{char}\n");
+                acc.push('\n');
             }
 
-            format!("{acc}{char}")
+            acc
         })
 }
 
@@ -187,5 +189,10 @@ M.M.M.M.M.
     #[bench]
     fn bench_crosses_amount(bencher: &mut Bencher) {
         bencher.iter(|| black_box(crosses_amount(black_box(BENCH_INPUT_CONTENTS))));
+    }
+
+    #[bench]
+    fn bench_rotate_clockwise(bencher: &mut Bencher) {
+        bencher.iter(|| black_box(rotate_clockwise(black_box(BENCH_INPUT_CONTENTS))));
     }
 }
