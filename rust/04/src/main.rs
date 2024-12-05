@@ -19,7 +19,7 @@ fn rotate_clockwise(input: &str) -> String {
         .iter()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
-    let mut result = "".to_string();
+    let mut result = String::with_capacity((cols * rows) + cols);
 
     for i in 0..cols {
         for j in (0..rows).rev() {
