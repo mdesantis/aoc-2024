@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/05/input");
 
@@ -68,9 +68,51 @@ fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
         .sum::<i32>()
 }
 
+fn sort_updates_line_values(a: &i32, b: &i32, rules: &HashMap<i32, Vec<i32>>) -> Ordering {
+    let (a_rules, b_rules) = (rules.get(a), rules.get(b));
+
+    if let Some(a_rule_values) = a_rules {
+        if a_rule_values.iter().any(|v| *v == *b) {
+            return Ordering::Greater;
+        }
+    }
+
+    if let Some(b_rule_values) = b_rules {
+        if b_rule_values.iter().any(|v| *v == *a) {
+            return Ordering::Less;
+        }
+    }
+
+    Ordering::Equal
+}
+
+fn reordered_wrongly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
+    let mut split = input_contents.split("\n\n");
+    let (rules_input, updates_input) = (split.next().unwrap(), split.next().unwrap());
+    let rules = collect_rules(rules_input);
+
+    updates_input
+        .lines()
+        .filter_map(|line| {
+            let mut updates_line_values = collect_updates_line_values(line);
+
+            let rules = &rules;
+
+            (!are_updates_line_values_sorted(&updates_line_values, rules)).then(move || {
+                updates_line_values.sort_by(|a, b| sort_updates_line_values(a, b, rules));
+
+                updates_line_values[updates_line_values.len() / 2]
+            })
+        })
+        .sum::<i32>()
+}
+
 fn main() {
     let result = correctly_ordered_updates_middle_pages_sum(INPUT_CONTENTS);
     println!("Correctly ordered updates middle pages sum: {result}");
+
+    let result = reordered_wrongly_ordered_updates_middle_pages_sum(INPUT_CONTENTS);
+    println!("Reordered wrongly ordered updates middle pages sum: {result}");
 }
 
 #[cfg(test)]
@@ -111,6 +153,14 @@ mod tests {
     fn test_correctly_ordered_updates_middle_pages_sum() {
         let expected = 143;
         let actual = correctly_ordered_updates_middle_pages_sum(TEST_INPUT_CONTENTS);
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_reordered_wrongly_ordered_updates_middle_pages_sum() {
+        let expected = 123;
+        let actual = reordered_wrongly_ordered_updates_middle_pages_sum(TEST_INPUT_CONTENTS);
 
         assert_eq!(expected, actual);
     }
