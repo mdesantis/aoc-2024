@@ -55,21 +55,11 @@ fn correctly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
 }
 
 fn sort_updates_line_values(a: &i32, b: &i32, rules: &HashMap<i32, Vec<i32>>) -> Ordering {
-    let (a_rules, b_rules) = (rules.get(a), rules.get(b));
-
-    if let Some(a_rule_values) = a_rules {
-        if a_rule_values.iter().any(|v| *v == *b) {
-            return Ordering::Greater;
-        }
+    match (rules.get(a), rules.get(b)) {
+        (Some(a_rule_values), _) if a_rule_values.iter().any(|v| *v == *b) => Ordering::Greater,
+        (_, Some(b_rule_values)) if b_rule_values.iter().any(|v| *v == *a) => Ordering::Less,
+        _ => Ordering::Equal,
     }
-
-    if let Some(b_rule_values) = b_rules {
-        if b_rule_values.iter().any(|v| *v == *a) {
-            return Ordering::Less;
-        }
-    }
-
-    Ordering::Equal
 }
 
 fn reordered_wrongly_ordered_updates_middle_pages_sum(input_contents: &str) -> i32 {
