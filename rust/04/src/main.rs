@@ -1,3 +1,7 @@
+#![feature(test)]
+
+extern crate test;
+
 use regex::Regex;
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/04/input");
@@ -132,6 +136,8 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::hint::black_box;
+    use test::Bencher;
 
     const TEST_INPUT_CONTENTS_WORDS_AMOUNT: &str = "....XXMAS.
 .SAMXMS...
@@ -155,6 +161,7 @@ S.S.S.S.S.
 M.M.M.M.M.
 ..........
 ";
+    const BENCH_INPUT_CONTENTS: &str = INPUT_CONTENTS;
 
     #[test]
     fn test_words_amount() {
@@ -170,5 +177,15 @@ M.M.M.M.M.
         let actual = crosses_amount(TEST_INPUT_CONTENTS_CROSSES_AMOUNT);
 
         assert_eq!(expected, actual);
+    }
+
+    #[bench]
+    fn bench_words_amount(bencher: &mut Bencher) {
+        bencher.iter(|| black_box(words_amount(black_box(BENCH_INPUT_CONTENTS))));
+    }
+
+    #[bench]
+    fn bench_crosses_amount(bencher: &mut Bencher) {
+        bencher.iter(|| black_box(crosses_amount(black_box(BENCH_INPUT_CONTENTS))));
     }
 }
