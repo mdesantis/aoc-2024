@@ -144,9 +144,15 @@ fn stuck_in_loop_amount(
     let rows = map.len();
     let cols = map[0].len();
     let stuck_in_loop = visited_positions.iter().filter(|(x, y)| {
+        let (x, y) = (*x, *y);
+
+        if (x, y) == curr_pos {
+            return false;
+        }
+
         let mut map = map.clone();
 
-        map[*x][*y] = OBSTRUCTED_TILE;
+        map[x][y] = OBSTRUCTED_TILE;
         is_stuck_in_loop(map, rows, cols, curr_pos, curr_dir)
     });
 
@@ -207,7 +213,6 @@ mod tests {
         let visited_positions = visited_positions(&map, curr_pos, curr_dir);
         let actual = stuck_in_loop_amount(map, &visited_positions, curr_pos, curr_dir);
 
-        // The actual value is 1720 for some reason :-(
         assert_eq!(expected, actual);
     }
 }
