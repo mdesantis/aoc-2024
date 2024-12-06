@@ -121,13 +121,11 @@ fn is_stuck_in_loop(
     mut curr_dir: GuardDirection,
 ) -> bool {
     let mut visited_positions_and_direction = HashSet::new();
-    let initial_pos = curr_pos;
 
     while let Some((next_pos, next_dir)) = maybe_next_values(&map, rows, cols, curr_pos, curr_dir) {
         (curr_pos, curr_dir) = (next_pos, next_dir);
 
-        if initial_pos != curr_pos && !visited_positions_and_direction.insert((curr_pos, curr_dir))
-        {
+        if !visited_positions_and_direction.insert((curr_pos, curr_dir)) {
             return true;
         }
     }
