@@ -4,3 +4,6 @@
 perf.data
 perf.data.old
 flamegraph.svg
+
+# samply related files
+profile.json
