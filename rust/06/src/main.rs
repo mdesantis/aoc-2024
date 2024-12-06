@@ -10,14 +10,14 @@ const INPUT_CONTENTS: &str = include_str!("../../../inputs/06/input");
 const OBSTRUCTED_TILE: Tile = '#';
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
-enum GuardDirection {
+enum Direction {
     Top,
     Right,
     Down,
     Left,
 }
 
-impl TryFrom<Tile> for GuardDirection {
+impl TryFrom<Tile> for Direction {
     type Error = ();
 
     fn try_from(tile: Tile) -> Result<Self, Self::Error> {
@@ -28,9 +28,9 @@ impl TryFrom<Tile> for GuardDirection {
     }
 }
 
-fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, GuardDirection) {
+fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, Direction) {
     let mut curr_pos: Option<Position> = None;
-    let mut curr_dir: Option<GuardDirection> = None;
+    let mut curr_dir: Option<Direction> = None;
     let map = input_contents
         .lines()
         .enumerate()
@@ -40,7 +40,7 @@ fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, GuardDir
                 .fold(Vec::new(), |mut acc, (y, char)| {
                     let tile = char as Tile;
                     if curr_pos.is_none() {
-                        if let Ok(direction) = GuardDirection::try_from(tile) {
+                        if let Ok(direction) = Direction::try_from(tile) {
                             (curr_pos, curr_dir) = (Some((x, y)), Some(direction));
                         }
                     }
@@ -54,12 +54,12 @@ fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, GuardDir
     (map, curr_pos.unwrap(), curr_dir.unwrap())
 }
 
-fn next_dir(curr_dir: GuardDirection) -> GuardDirection {
+fn next_dir(curr_dir: Direction) -> Direction {
     match curr_dir {
-        GuardDirection::Top => GuardDirection::Right,
-        GuardDirection::Right => GuardDirection::Down,
-        GuardDirection::Down => GuardDirection::Left,
-        GuardDirection::Left => GuardDirection::Top,
+        Direction::Top => Direction::Right,
+        Direction::Right => Direction::Down,
+        Direction::Down => Direction::Left,
+        Direction::Left => Direction::Top,
     }
 }
 
@@ -72,14 +72,14 @@ fn maybe_next_values(
     rows: Coord,
     cols: Coord,
     curr_pos: Position,
-    curr_dir: GuardDirection,
-) -> Option<(Position, GuardDirection)> {
+    curr_dir: Direction,
+) -> Option<(Position, Direction)> {
     let (curr_x, curr_y) = curr_pos;
     let (maybe_next_x, maybe_next_y) = match curr_dir {
-        GuardDirection::Top if curr_x > 0 => (Some(curr_x - 1), Some(curr_y)),
-        GuardDirection::Right => (Some(curr_x), Some(curr_y + 1)),
-        GuardDirection::Down => (Some(curr_x + 1), Some(curr_y)),
-        GuardDirection::Left if curr_y > 0 => (Some(curr_x), Some(curr_y - 1)),
+        Direction::Top if curr_x > 0 => (Some(curr_x - 1), Some(curr_y)),
+        Direction::Right => (Some(curr_x), Some(curr_y + 1)),
+        Direction::Down => (Some(curr_x + 1), Some(curr_y)),
+        Direction::Left if curr_y > 0 => (Some(curr_x), Some(curr_y - 1)),
         _ => (None, None),
     };
 
@@ -97,9 +97,9 @@ fn maybe_next_values(
 fn visited_positions(
     map: &Map,
     mut curr_pos: Position,
-    mut curr_dir: GuardDirection,
+    mut curr_dir: Direction,
 ) -> VisitedPositions {
-    let mut visited_positions = HashSet::new();
+    let mut visited_positions = VisitedPositions::new();
     let rows = map.len();
     let cols = map[0].len();
 
@@ -123,9 +123,9 @@ fn is_stuck_in_loop(
     rows: usize,
     cols: usize,
     mut curr_pos: Position,
-    mut curr_dir: GuardDirection,
+    mut curr_dir: Direction,
 ) -> bool {
-    let mut visited_positions_and_direction = HashSet::new();
+    let mut visited_positions_and_direction: HashSet<(Position, Direction)> = HashSet::new();
 
     while let Some((next_pos, next_dir)) = maybe_next_values(&map, rows, cols, curr_pos, curr_dir) {
         (curr_pos, curr_dir) = (next_pos, next_dir);
@@ -142,7 +142,7 @@ fn stuck_in_loop_amount(
     map: Map,
     visited_positions: &VisitedPositions,
     curr_pos: Position,
-    curr_dir: GuardDirection,
+    curr_dir: Direction,
 ) -> i32 {
     let rows = map.len();
     let cols = map[0].len();
