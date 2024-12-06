@@ -27,7 +27,6 @@ fn get_map_and_starting_values(
 ) -> (Vec<Vec<char>>, (usize, usize), GuardDirection) {
     let mut curr_pos: Option<(usize, usize)> = None;
     let mut curr_dir: Option<GuardDirection> = None;
-
     let map = input_contents
         .lines()
         .enumerate()
@@ -78,6 +77,7 @@ fn maybe_next_values(
         GuardDirection::Left if curr_y > 0 => (Some(curr_x), Some(curr_y - 1)),
         _ => (None, None),
     };
+
     match (maybe_next_x, maybe_next_y) {
         (None, _) => None,
         (_, None) => None,
