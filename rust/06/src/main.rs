@@ -1,3 +1,7 @@
+#![feature(test)]
+
+extern crate test;
+
 use std::collections::HashSet;
 
 type Tile = char;
@@ -6,9 +10,6 @@ type Coord = usize;
 type Position = (Coord, Coord);
 type VisitedPositions = HashSet<Position>;
 
-const INPUT_CONTENTS: &str = include_str!("../../../inputs/06/input");
-const OBSTRUCTED_TILE: Tile = '#';
-
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 enum Direction {
     Top,
@@ -16,6 +17,9 @@ enum Direction {
     Down,
     Left,
 }
+
+const INPUT_CONTENTS: &str = include_str!("../../../inputs/06/input");
+const OBSTRUCTED_TILE: Tile = '#';
 
 impl TryFrom<Tile> for Direction {
     type Error = ();
@@ -37,17 +41,18 @@ fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, Directio
         .map(|(x, line)| {
             line.chars()
                 .enumerate()
-                .fold(Vec::new(), |mut acc, (y, char)| {
-                    let tile = char as Tile;
+                .map(|(y, char)| {
+                    let tile: Tile = char;
+
                     if curr_pos.is_none() {
                         if let Ok(direction) = Direction::try_from(tile) {
                             (curr_pos, curr_dir) = (Some((x, y)), Some(direction));
                         }
                     }
 
-                    acc.push(tile);
-                    acc
+                    tile
                 })
+                .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
 
@@ -99,9 +104,9 @@ fn visited_positions(
     mut curr_pos: Position,
     mut curr_dir: Direction,
 ) -> VisitedPositions {
-    let mut visited_positions = VisitedPositions::new();
     let rows = map.len();
     let cols = map[0].len();
+    let mut visited_positions = VisitedPositions::with_capacity(rows * cols);
 
     visited_positions.insert(curr_pos);
 
@@ -125,7 +130,8 @@ fn is_stuck_in_loop(
     mut curr_pos: Position,
     mut curr_dir: Direction,
 ) -> bool {
-    let mut visited_positions_and_direction: HashSet<(Position, Direction)> = HashSet::new();
+    let mut visited_positions_and_direction: HashSet<(Position, Direction)> =
+        HashSet::with_capacity(rows * cols);
 
     while let Some((next_pos, next_dir)) = maybe_next_values(&map, rows, cols, curr_pos, curr_dir) {
         (curr_pos, curr_dir) = (next_pos, next_dir);
@@ -176,6 +182,8 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::hint::black_box;
+    use test::Bencher;
 
     const TEST_INPUT_CONTENTS: &str = "....#.....
 .........#
@@ -188,6 +196,7 @@ mod tests {
 #.........
 ......#...
 ";
+    const BENCH_INPUT_CONTENTS: &str = INPUT_CONTENTS;
 
     #[test]
     fn test_visited_positions_amount() {
@@ -217,5 +226,21 @@ mod tests {
         let actual = stuck_in_loop_amount(map, &visited_positions, curr_pos, curr_dir);
 
         assert_eq!(expected, actual);
+    }
+
+    #[bench]
+    fn bench_stuck_in_loop_amount(bencher: &mut Bencher) {
+        bencher.iter(|| {
+            let (map, curr_pos, curr_dir) =
+                black_box(get_map_and_starting_values(BENCH_INPUT_CONTENTS));
+            let visited_positions = black_box(visited_positions(&map, curr_pos, curr_dir));
+
+            black_box(stuck_in_loop_amount(
+                map,
+                &visited_positions,
+                curr_pos,
+                curr_dir,
+            ))
+        });
     }
 }
