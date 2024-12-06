@@ -1,7 +1,13 @@
 use std::collections::HashSet;
 
+type Tile = char;
+type Map = Vec<Vec<Tile>>;
+type Coord = usize;
+type Position = (Coord, Coord);
+type VisitedPositions = HashSet<Position>;
+
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/06/input");
-const OBSTRUCTED_TILE: char = '#';
+const OBSTRUCTED_TILE: Tile = '#';
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 enum GuardDirection {
@@ -11,21 +17,19 @@ enum GuardDirection {
     Left,
 }
 
-impl TryFrom<char> for GuardDirection {
+impl TryFrom<Tile> for GuardDirection {
     type Error = ();
 
-    fn try_from(char: char) -> Result<Self, Self::Error> {
-        match char {
+    fn try_from(tile: Tile) -> Result<Self, Self::Error> {
+        match tile {
             '^' => Ok(Self::Top),
             _ => Err(()),
         }
     }
 }
 
-fn get_map_and_starting_values(
-    input_contents: &str,
-) -> (Vec<Vec<char>>, (usize, usize), GuardDirection) {
-    let mut curr_pos: Option<(usize, usize)> = None;
+fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, GuardDirection) {
+    let mut curr_pos: Option<Position> = None;
     let mut curr_dir: Option<GuardDirection> = None;
     let map = input_contents
         .lines()
@@ -34,13 +38,14 @@ fn get_map_and_starting_values(
             line.chars()
                 .enumerate()
                 .fold(Vec::new(), |mut acc, (y, char)| {
+                    let tile = char as Tile;
                     if curr_pos.is_none() {
-                        if let Ok(direction) = GuardDirection::try_from(char) {
+                        if let Ok(direction) = GuardDirection::try_from(tile) {
                             (curr_pos, curr_dir) = (Some((x, y)), Some(direction));
                         }
                     }
 
-                    acc.push(char);
+                    acc.push(tile);
                     acc
                 })
         })
@@ -58,17 +63,17 @@ fn next_dir(curr_dir: GuardDirection) -> GuardDirection {
     }
 }
 
-fn is_obstructed(tile: char) -> bool {
+fn is_obstructed(tile: Tile) -> bool {
     tile == OBSTRUCTED_TILE
 }
 
 fn maybe_next_values(
-    map: &Vec<Vec<char>>,
-    rows: usize,
-    cols: usize,
-    curr_pos: (usize, usize),
+    map: &Map,
+    rows: Coord,
+    cols: Coord,
+    curr_pos: Position,
     curr_dir: GuardDirection,
-) -> Option<((usize, usize), GuardDirection)> {
+) -> Option<(Position, GuardDirection)> {
     let (curr_x, curr_y) = curr_pos;
     let (maybe_next_x, maybe_next_y) = match curr_dir {
         GuardDirection::Top if curr_x > 0 => (Some(curr_x - 1), Some(curr_y)),
@@ -90,10 +95,10 @@ fn maybe_next_values(
 }
 
 fn visited_positions(
-    map: &Vec<Vec<char>>,
-    mut curr_pos: (usize, usize),
+    map: &Map,
+    mut curr_pos: Position,
     mut curr_dir: GuardDirection,
-) -> HashSet<(usize, usize)> {
+) -> VisitedPositions {
     let mut visited_positions = HashSet::new();
     let rows = map.len();
     let cols = map[0].len();
@@ -109,15 +114,15 @@ fn visited_positions(
     visited_positions
 }
 
-fn visited_positions_amount(visited_positions: &HashSet<(usize, usize)>) -> i32 {
+fn visited_positions_amount(visited_positions: &VisitedPositions) -> i32 {
     visited_positions.len() as i32
 }
 
 fn is_stuck_in_loop(
-    map: Vec<Vec<char>>,
+    map: Map,
     rows: usize,
     cols: usize,
-    mut curr_pos: (usize, usize),
+    mut curr_pos: Position,
     mut curr_dir: GuardDirection,
 ) -> bool {
     let mut visited_positions_and_direction = HashSet::new();
@@ -134,9 +139,9 @@ fn is_stuck_in_loop(
 }
 
 fn stuck_in_loop_amount(
-    map: Vec<Vec<char>>,
-    visited_positions: &HashSet<(usize, usize)>,
-    curr_pos: (usize, usize),
+    map: Map,
+    visited_positions: &VisitedPositions,
+    curr_pos: Position,
     curr_dir: GuardDirection,
 ) -> i32 {
     let rows = map.len();
