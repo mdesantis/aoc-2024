@@ -51,28 +51,50 @@ fn any_valid_combination(
     test_result == result
 }
 
+fn is_valid_equation_line(line: &str, operations: &Vec<fn(i64, i64) -> i64>) -> Option<i64> {
+    let (result_string, test_values_string) = line.split_once(':').unwrap();
+    let result = result_string.parse::<i64>().unwrap();
+    let test_values = test_values_string
+        .split_whitespace()
+        .map(|v| v.parse::<i64>().unwrap())
+        .collect::<Vec<_>>();
+    let combinations = combinations(&operations, test_values.len() - 1);
+
+    valid_combinations_results(&combinations, &test_values, result)
+}
+
 fn total_calibration_result(input_contents: &str) -> i64 {
     let operations = vec![<i64 as std::ops::Add>::add, <i64 as std::ops::Mul>::mul];
 
     input_contents
         .lines()
-        .filter_map(|line| {
-            let (result_string, test_values_string) = line.split_once(':').unwrap();
-            let result = result_string.parse::<i64>().unwrap();
-            let test_values = test_values_string
-                .split_whitespace()
-                .map(|v| v.parse::<i64>().unwrap())
-                .collect::<Vec<_>>();
-            let combinations = combinations(&operations, test_values.len() - 1);
+        .filter_map(|line| is_valid_equation_line(line, &operations))
+        .sum::<i64>()
+}
 
-            valid_combinations_results(&combinations, &test_values, result)
-        })
+fn concatenate(a: i64, b: i64) -> i64 {
+    (a.to_string() + &b.to_string()).parse::<i64>().unwrap()
+}
+
+fn total_calibration_with_concatenation_result(input_contents: &str) -> i64 {
+    let operations = vec![
+        <i64 as std::ops::Add>::add,
+        <i64 as std::ops::Mul>::mul,
+        concatenate,
+    ];
+
+    input_contents
+        .lines()
+        .filter_map(|line| is_valid_equation_line(line, &operations))
         .sum::<i64>()
 }
 
 fn main() {
     let result = total_calibration_result(INPUT_CONTENTS);
     println!("Total calibration result: {result}");
+
+    let result = total_calibration_with_concatenation_result(INPUT_CONTENTS);
+    println!("Total calibration with concatenation result: {result}");
 }
 
 #[cfg(test)]
@@ -94,6 +116,14 @@ mod tests {
     fn test_total_calibration_result() {
         let expected = 3749_i64;
         let actual = total_calibration_result(TEST_INPUT_CONTENTS);
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_total_calibration_with_concatenations_result() {
+        let expected = 11387_i64;
+        let actual = total_calibration_with_concatenation_result(TEST_INPUT_CONTENTS);
 
         assert_eq!(expected, actual);
     }
