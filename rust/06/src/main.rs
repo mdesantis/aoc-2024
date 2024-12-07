@@ -1,4 +1,4 @@
-#![feature(test)]
+#![feature(let_chains, test)]
 
 extern crate test;
 
@@ -44,10 +44,10 @@ fn get_map_and_starting_values(input_contents: &str) -> (Map, Position, Directio
                 .map(|(y, char)| {
                     let tile: Tile = char;
 
-                    if curr_pos.is_none() {
-                        if let Ok(direction) = Direction::try_from(tile) {
-                            (curr_pos, curr_dir) = (Some((x, y)), Some(direction));
-                        }
+                    if curr_pos.is_none()
+                        && let Ok(direction) = Direction::try_from(tile)
+                    {
+                        (curr_pos, curr_dir) = (Some((x, y)), Some(direction));
                     }
 
                     tile
