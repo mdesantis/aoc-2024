@@ -20,6 +20,37 @@ fn combinations<'a, T: 'a + Copy>(a: &'a [T], n: usize) -> Vec<Vec<T>> {
     result
 }
 
+fn valid_combinations_results(
+    combinations: &Vec<Vec<fn(i64, i64) -> i64>>,
+    test_values: &Vec<i64>,
+    result: i64,
+) -> Option<i64> {
+    combinations
+        .iter()
+        .any(|operations| any_valid_combination(operations, &test_values, result))
+        .then_some(result)
+}
+
+fn any_valid_combination(
+    operations: &Vec<fn(i64, i64) -> i64>,
+    test_values: &Vec<i64>,
+    result: i64,
+) -> bool {
+    let mut operations_iter = operations.iter();
+
+    let test_result = test_values
+        .clone()
+        .into_iter()
+        .reduce(|acc, test_value| {
+            let operation = operations_iter.next().unwrap();
+            let value = operation.call((acc, test_value));
+            value
+        })
+        .unwrap();
+
+    test_result == result
+}
+
 fn total_calibration_result(input_contents: &str) -> i64 {
     let operations = vec![<i64 as std::ops::Add>::add, <i64 as std::ops::Mul>::mul];
 
@@ -33,23 +64,8 @@ fn total_calibration_result(input_contents: &str) -> i64 {
                 .map(|v| v.parse::<i64>().unwrap())
                 .collect::<Vec<_>>();
             let combinations = combinations(&operations, test_values.len() - 1);
-            combinations
-                .iter()
-                .any(|operations| {
-                    let mut operations_iter = operations.iter();
-                    let test_result = test_values
-                        .clone()
-                        .into_iter()
-                        .reduce(|acc, test_value| {
-                            let operation = operations_iter.next().unwrap();
-                            let value = operation.call((acc, test_value));
-                            value
-                        })
-                        .unwrap();
 
-                    test_result == result
-                })
-                .then_some(result)
+            valid_combinations_results(&combinations, &test_values, result)
         })
         .sum::<i64>()
 }
