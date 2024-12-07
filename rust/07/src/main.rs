@@ -22,43 +22,36 @@ fn combinations<'a, T: 'a + Copy>(a: &'a [T], n: usize) -> Vec<Vec<T>> {
 
 fn total_calibration_result(input_contents: &str) -> i64 {
     let operations = vec![<i64 as std::ops::Add>::add, <i64 as std::ops::Mul>::mul];
-    let mut sum = 0;
 
-    for line in input_contents.lines() {
-        if let Some((result_string, test_values_string)) = line.split_once(':') {
+    input_contents
+        .lines()
+        .filter_map(|line| {
+            let (result_string, test_values_string) = line.split_once(':').unwrap();
             let result = result_string.parse::<i64>().unwrap();
             let test_values = test_values_string
                 .split_whitespace()
                 .map(|v| v.parse::<i64>().unwrap())
                 .collect::<Vec<_>>();
             let combinations = combinations(&operations, test_values.len() - 1);
-            let mut is_equation_correct = false;
+            combinations
+                .iter()
+                .any(|operations| {
+                    let mut operations_iter = operations.iter();
+                    let test_result = test_values
+                        .clone()
+                        .into_iter()
+                        .reduce(|acc, test_value| {
+                            let operation = operations_iter.next().unwrap();
+                            let value = operation.call((acc, test_value));
+                            value
+                        })
+                        .unwrap();
 
-            for operations in combinations {
-                let mut operations_iter = operations.iter();
-                let test_result = test_values
-                    .clone()
-                    .into_iter()
-                    .reduce(|acc, test_value| {
-                        let operation = operations_iter.next().unwrap();
-                        let value = operation.call((acc, test_value));
-                        value
-                    })
-                    .unwrap();
-
-                if test_result == result {
-                    is_equation_correct = true;
-                    break;
-                }
-            }
-
-            if is_equation_correct {
-                sum += result;
-            }
-        }
-    }
-
-    sum
+                    test_result == result
+                })
+                .then_some(result)
+        })
+        .sum::<i64>()
 }
 
 fn main() {
