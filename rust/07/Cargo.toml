@@ -1,3 +1,6 @@
 [package]
 name = "aoc_2024_07"
 edition.workspace = true
+
+[dependencies]
+rayon = "1.10.0"

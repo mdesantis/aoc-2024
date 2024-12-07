@@ -2,6 +2,7 @@
 
 extern crate test;
 
+use rayon::prelude::*;
 use std::collections::HashMap;
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/07/input");
@@ -30,7 +31,7 @@ fn valid_combinations_results(
     result: i64,
 ) -> Option<i64> {
     combinations
-        .iter()
+        .par_iter()
         .any(|operations| any_valid_combination(operations, &test_values, result))
         .then_some(result)
 }
@@ -41,15 +42,10 @@ fn any_valid_combination(
     result: i64,
 ) -> bool {
     let mut operations_iter = operations.iter();
-
     let test_result = test_values
         .clone()
         .into_iter()
-        .reduce(|acc, test_value| {
-            let operation = operations_iter.next().unwrap();
-            let value = operation.call((acc, test_value));
-            value
-        })
+        .reduce(|acc, test_value| operations_iter.next().unwrap().call((acc, test_value)))
         .unwrap();
 
     test_result == result
