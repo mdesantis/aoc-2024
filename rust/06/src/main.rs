@@ -2,13 +2,13 @@
 
 extern crate test;
 
-use std::collections::HashSet;
+use ahash::AHashSet;
 
 type Tile = char;
 type Map = Vec<Vec<Tile>>;
 type Coord = usize;
 type Position = (Coord, Coord);
-type VisitedPositions = HashSet<Position>;
+type VisitedPositions = AHashSet<Position>;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 enum Direction {
@@ -130,8 +130,8 @@ fn is_stuck_in_loop(
     mut curr_pos: Position,
     mut curr_dir: Direction,
 ) -> bool {
-    let mut visited_positions_and_direction: HashSet<(Position, Direction)> =
-        HashSet::with_capacity(rows * cols);
+    let mut visited_positions_and_direction: AHashSet<(Position, Direction)> =
+        AHashSet::with_capacity(rows * cols);
 
     while let Some((next_pos, next_dir)) = maybe_next_values(&map, rows, cols, curr_pos, curr_dir) {
         (curr_pos, curr_dir) = (next_pos, next_dir);
