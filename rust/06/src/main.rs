@@ -152,17 +152,14 @@ fn stuck_in_loop_amount(
 ) -> i32 {
     let rows = map.len();
     let cols = map[0].len();
-    let stuck_in_loop = visited_positions.iter().filter(|(x, y)| {
-        let (x, y) = (*x, *y);
+    let stuck_in_loop = visited_positions.iter().filter(|(x, y)| match (*x, *y) {
+        visited_pos if visited_pos == curr_pos => false,
+        (x, y) => {
+            let mut map = map.clone();
 
-        if (x, y) == curr_pos {
-            return false;
+            map[x][y] = OBSTRUCTED_TILE;
+            is_stuck_in_loop(map, rows, cols, curr_pos, curr_dir)
         }
-
-        let mut map = map.clone();
-
-        map[x][y] = OBSTRUCTED_TILE;
-        is_stuck_in_loop(map, rows, cols, curr_pos, curr_dir)
     });
 
     stuck_in_loop.count() as i32
