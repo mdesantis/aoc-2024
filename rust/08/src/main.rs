@@ -26,10 +26,10 @@ fn antinode_pairs(
         let dx = 2 * (x2 - x1);
         let dy = 2 * (y2 - y1);
 
-        Some(vec![(x1 + dx, y1 + dy), (x2 - dx, y2 - dy)])
-    } else {
-        None
+        return Some(vec![(x1 + dx, y1 + dy), (x2 - dx, y2 - dy)]);
     }
+
+    None
 }
 
 fn in_bound_antinodes<'a>(
