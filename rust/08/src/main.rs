@@ -2,7 +2,9 @@ use std::collections::HashSet;
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/08/input");
 
-fn is_antinode_in_bound(x: i32, y: i32, rows: i32, cols: i32) -> bool {
+fn is_antinode_in_bound(antinode: (i32, i32), rows: i32, cols: i32) -> bool {
+    let (x, y) = antinode;
+
     0 <= x && x < rows && 0 <= y && y < cols
 }
 
@@ -18,33 +20,41 @@ fn antennas(lines: &[&str]) -> Vec<(i32, i32, char)> {
         .collect::<Vec<_>>()
 }
 
-fn antennas_pair_to_antinodes(
+fn antennas_pair_to_in_bound_antinodes(
     antenna1: &(i32, i32, char),
     antenna2: &(i32, i32, char),
+    rows: i32,
+    cols: i32,
 ) -> Option<Vec<(i32, i32)>> {
     let (x1, y1, c1) = antenna1;
     let (x2, y2, c2) = antenna2;
 
-    if c1 == c2 && (x1, y1) < (x2, y2) {
-        let dx = 2 * (x2 - x1);
-        let dy = 2 * (y2 - y1);
-
-        return Some(vec![(x1 + dx, y1 + dy), (x2 - dx, y2 - dy)]);
+    if !(c1 == c2 && (x1, y1) < (x2, y2)) {
+        return None;
     }
 
-    None
+    let dx = 2 * (x2 - x1);
+    let dy = 2 * (y2 - y1);
+
+    let antinodes = vec![(x1 + dx, y1 + dy), (x2 - dx, y2 - dy)];
+    let in_bound_antinodes = antinodes
+        .iter()
+        .filter(|antinode| is_antinode_in_bound(**antinode, rows, cols))
+        .copied()
+        .collect::<Vec<_>>();
+
+    return (!in_bound_antinodes.is_empty()).then_some(in_bound_antinodes);
 }
 
 fn in_bound_antinodes(antennas: &[(i32, i32, char)], rows: i32, cols: i32) -> HashSet<(i32, i32)> {
     antennas
         .iter()
         .flat_map(move |antenna1| {
-            antennas
-                .iter()
-                .filter_map(move |antenna2| antennas_pair_to_antinodes(antenna1, antenna2))
+            antennas.iter().filter_map(move |antenna2| {
+                antennas_pair_to_in_bound_antinodes(antenna1, antenna2, rows, cols)
+            })
         })
         .flatten()
-        .filter(|(x, y)| is_antinode_in_bound(*x, *y, rows, cols))
         .collect()
 }
 
