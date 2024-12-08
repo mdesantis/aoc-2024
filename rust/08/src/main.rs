@@ -32,11 +32,7 @@ fn antinode_pairs(
     None
 }
 
-fn in_bound_antinodes<'a>(
-    antennas: &'a [(i32, i32, char)],
-    rows: i32,
-    cols: i32,
-) -> HashSet<(i32, i32)> {
+fn in_bound_antinodes(antennas: &[(i32, i32, char)], rows: i32, cols: i32) -> HashSet<(i32, i32)> {
     antennas
         .iter()
         .flat_map(move |(x1, y1, c1)| {
