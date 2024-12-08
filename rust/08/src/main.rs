@@ -21,25 +21,21 @@ fn antennas(lines: &[&str]) -> Vec<(i32, i32, char)> {
 }
 
 fn antennas_pair_to_in_bound_antinodes(
-    antenna1: (i32, i32, char),
-    antenna2: (i32, i32, char),
+    antenna1: (i32, i32),
+    antenna2: (i32, i32),
     rows: i32,
     cols: i32,
 ) -> Option<Vec<(i32, i32)>> {
-    match (antenna1, antenna2) {
-        ((x1, y1, c1), (x2, y2, c2)) if c1 == c2 && (x1, y1) < (x2, y2) => {
-            let (dx, dy) = (2 * (x2 - x1), 2 * (y2 - y1));
-            let antinodes = vec![(x1 + dx, y1 + dy), (x2 - dx, y2 - dy)];
-            let in_bound_antinodes = antinodes
-                .iter()
-                .filter(|antinode| is_antinode_in_bound(**antinode, rows, cols))
-                .copied()
-                .collect::<Vec<_>>();
+    let ((x1, y1), (x2, y2)) = (antenna1, antenna2);
+    let (dx, dy) = (2 * (x2 - x1), 2 * (y2 - y1));
+    let antinodes = vec![(x1 + dx, y1 + dy), (x2 - dx, y2 - dy)];
+    let in_bound_antinodes = antinodes
+        .iter()
+        .filter(|antinode| is_antinode_in_bound(**antinode, rows, cols))
+        .copied()
+        .collect::<Vec<_>>();
 
-            (!in_bound_antinodes.is_empty()).then_some(in_bound_antinodes)
-        }
-        _ => None,
-    }
+    (!in_bound_antinodes.is_empty()).then_some(in_bound_antinodes)
 }
 
 fn in_bound_antinodes(antennas: &[(i32, i32, char)], rows: i32, cols: i32) -> HashSet<(i32, i32)> {
@@ -47,7 +43,13 @@ fn in_bound_antinodes(antennas: &[(i32, i32, char)], rows: i32, cols: i32) -> Ha
         .iter()
         .flat_map(move |antenna1| {
             antennas.iter().filter_map(move |antenna2| {
-                antennas_pair_to_in_bound_antinodes(*antenna1, *antenna2, rows, cols)
+                // antennas_pair_to_in_bound_antinodes(*antenna1, *antenna2, rows, cols)
+                match (antenna1, antenna2) {
+                    ((x1, y1, c1), (x2, y2, c2)) if c1 == c2 && (x1, y1) < (x2, y2) => {
+                        antennas_pair_to_in_bound_antinodes((*x1, *y1), (*x2, *y2), rows, cols)
+                    }
+                    _ => None,
+                }
             })
         })
         .flatten()
