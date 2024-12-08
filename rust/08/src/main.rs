@@ -6,12 +6,16 @@ fn is_antinode_in_bound(x: i32, y: i32, rows: i32, cols: i32) -> bool {
     0 <= x && x < rows && 0 <= y && y < cols
 }
 
-fn antennas<'a>(lines: &'a [&str]) -> impl Iterator<Item = (i32, i32, char)> + 'a {
-    lines.iter().enumerate().flat_map(|(i, line)| {
-        line.chars()
-            .enumerate()
-            .filter_map(move |(j, char)| char.is_alphanumeric().then(|| (i as i32, j as i32, char)))
-    })
+fn antennas(lines: &[&str]) -> Vec<(i32, i32, char)> {
+    lines
+        .iter()
+        .enumerate()
+        .flat_map(|(i, line)| {
+            line.chars().enumerate().filter_map(move |(j, char)| {
+                char.is_alphanumeric().then(|| (i as i32, j as i32, char))
+            })
+        })
+        .collect::<Vec<_>>()
 }
 
 fn antinode_pairs(
@@ -49,7 +53,7 @@ fn in_bound_antinodes_amount(input_contents: &str) -> i32 {
     let lines = input_contents.lines().collect::<Vec<_>>();
     let cols = lines.len() as i32;
     let rows = lines[0].chars().collect::<Vec<_>>().len() as i32;
-    let antennas = antennas(&lines).collect::<Vec<_>>();
+    let antennas = antennas(&lines);
     let in_bound_antinodes = in_bound_antinodes(&antennas, rows, cols);
 
     in_bound_antinodes.len() as i32
