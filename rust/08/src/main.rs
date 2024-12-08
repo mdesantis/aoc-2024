@@ -18,14 +18,13 @@ fn antennas(lines: &[&str]) -> Vec<(i32, i32, char)> {
         .collect::<Vec<_>>()
 }
 
-fn antinode_pairs(
-    x1: &i32,
-    y1: &i32,
-    c1: &char,
-    x2: &i32,
-    y2: &i32,
-    c2: &char,
+fn antennas_pair_to_antinodes(
+    antenna1: &(i32, i32, char),
+    antenna2: &(i32, i32, char),
 ) -> Option<Vec<(i32, i32)>> {
+    let (x1, y1, c1) = antenna1;
+    let (x2, y2, c2) = antenna2;
+
     if c1 == c2 && (x1, y1) < (x2, y2) {
         let dx = 2 * (x2 - x1);
         let dy = 2 * (y2 - y1);
@@ -39,10 +38,10 @@ fn antinode_pairs(
 fn in_bound_antinodes(antennas: &[(i32, i32, char)], rows: i32, cols: i32) -> HashSet<(i32, i32)> {
     antennas
         .iter()
-        .flat_map(move |(x1, y1, c1)| {
+        .flat_map(move |antenna1| {
             antennas
                 .iter()
-                .filter_map(|(x2, y2, c2)| antinode_pairs(x1, y1, c1, x2, y2, c2))
+                .filter_map(move |antenna2| antennas_pair_to_antinodes(antenna1, antenna2))
         })
         .flatten()
         .filter(|(x, y)| is_antinode_in_bound(*x, *y, rows, cols))
