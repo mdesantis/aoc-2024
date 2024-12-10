@@ -14,27 +14,25 @@ fn char_to_i64(c: char) -> i64 {
 
 fn blocks(input_contents: &str) -> Vec<(BlockType, Option<i64>)> {
     let input_contents = input_contents.trim();
-    let mut chars = input_contents.chars();
+    let mut chars = input_contents.chars().peekable();
     let mut blocks = vec![];
     let mut file_id = 0;
 
-    loop {
-        let (file_blocks_amount, maybe_free_space_amount) = match chars.next_chunk() {
-            Ok([fia, fsa]) => (char_to_i64(fia), Some(char_to_i64(fsa))),
-            Err(rem) => (char_to_i64(rem.as_slice()[0]), None),
-        };
+    while let Some(file_blocks_amount) = chars.next() {
+        let file_blocks_amount = char_to_i64(file_blocks_amount);
 
         for _ in 0..file_blocks_amount {
             blocks.push((BlockType::FileId, Some(file_id)));
         }
 
-        match maybe_free_space_amount {
-            Some(free_space_amount) => {
-                for _ in 0..free_space_amount {
-                    blocks.push((BlockType::FreeSpace, None))
-                }
-            }
-            _ => break,
+        if chars.peek().is_none() {
+            break;
+        }
+
+        let free_space_amount = char_to_i64(chars.next().unwrap());
+
+        for _ in 0..free_space_amount {
+            blocks.push((BlockType::FreeSpace, None))
         }
 
         file_id += 1;
