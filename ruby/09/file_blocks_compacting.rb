@@ -35,18 +35,14 @@ class FileBlocksCompacting
   end
 
   def compact_file_blocks(blocks)
-    blocks.size.times do |i|
-      next if blocks[i].is_a? FileBlock
+    blocks.count { |v| v.is_a? FreeSpace }.times do
+      last_block = blocks.pop
 
-      loop do
-        last_block = blocks.pop
+      next unless last_block.is_a? FileBlock
 
-        next if last_block.is_a? FreeSpace
+      first_free_space_index = blocks.index { |v| v.is_a? FreeSpace }
 
-        blocks[i] ? blocks[i] = last_block : blocks.push(last_block)
-
-        break
-      end
+      blocks[first_free_space_index] = last_block
     end
 
     blocks
