@@ -63,10 +63,10 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
   def compact_file_blocks(blocks)
     blocks = blocks.to_a
 
-    file_blocks_with_the_same_file_id_chunks = group_consecutive_file_blocks_with_the_same_file_id_into_chunks blocks
+    file_blocks_with_the_same_file_id_chunks = chunk_by_file_block_with_same_file_id blocks
 
     file_blocks_with_the_same_file_id_chunks.each do |file_blocks_with_blocks_i|
-      free_spaces_with_blocks_i = first_corresponding_free_spaces blocks, file_blocks_with_blocks_i.size
+      free_spaces_with_blocks_i = first_free_spaces_suitable_for_compacting blocks, file_blocks_with_blocks_i.size
 
       next unless free_spaces_with_blocks_i
 
@@ -81,7 +81,7 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
     blocks
   end
 
-  def group_consecutive_file_blocks_with_the_same_file_id_into_chunks(blocks)
+  def chunk_by_file_block_with_same_file_id(blocks)
     blocks
       .each_with_index
       .select { |(block, _)| block.is_a? FileBlock }
@@ -89,7 +89,7 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
       .chunk_while { |(file_block_before, _), (file_block_after, _)| file_block_before.same_file_id? file_block_after }
   end
 
-  def first_corresponding_free_spaces(blocks, file_blocks_with_blocks_i_size)
+  def first_free_spaces_suitable_for_compacting(blocks, file_blocks_with_blocks_i_size)
     blocks
       .each_with_index
       .each_cons(file_blocks_with_blocks_i_size)
