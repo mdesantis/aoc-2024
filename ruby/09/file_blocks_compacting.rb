@@ -63,11 +63,11 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
     file_blocks_with_the_same_file_id_chunks = chunk_by_file_block_with_same_file_id blocks
 
     file_blocks_with_the_same_file_id_chunks.each do |file_blocks_with_blocks_i|
-      first_free_space_blocks_i = first_free_space_suitable_for_compacting(blocks, file_blocks_with_blocks_i)&.last
+      free_space_blocks_i = first_free_space_suitable_for_compacting(blocks, file_blocks_with_blocks_i)&.last
 
-      next if !first_free_space_blocks_i || file_blocks_with_blocks_i.first.last < first_free_space_blocks_i
+      next if !free_space_blocks_i || file_blocks_with_blocks_i.first.last < free_space_blocks_i
 
-      swap_file_blocks_with_free_spaces blocks, file_blocks_with_blocks_i, first_free_space_blocks_i
+      swap_file_blocks_with_free_spaces blocks, file_blocks_with_blocks_i, free_space_blocks_i
     end
 
     blocks
@@ -88,9 +88,9 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
       .find { |blocks_cons| blocks_cons.all? { |(block, _)| block.is_a? FreeSpace } }&.first
   end
 
-  def swap_file_blocks_with_free_spaces(blocks, file_blocks_with_blocks_i, first_free_space_blocks_i)
+  def swap_file_blocks_with_free_spaces(blocks, file_blocks_with_blocks_i, free_space_blocks_i)
     file_blocks_with_blocks_i.size.times do |i|
-      blocks[first_free_space_blocks_i + i] = FileBlock[file_id: file_blocks_with_blocks_i.first.first.file_id]
+      blocks[free_space_blocks_i + i] = FileBlock[file_id: file_blocks_with_blocks_i.first.first.file_id]
       blocks[file_blocks_with_blocks_i.last.last + i] = FreeSpace[]
     end
   end
