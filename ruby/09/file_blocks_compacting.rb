@@ -53,20 +53,6 @@ class FileBlocksCompacting
 
     nil
   end
-
-  def _compact_file_blocks(blocks)
-    blocks.count { |v| v.is_a? FreeSpace }.times do
-      last_block = blocks.pop
-
-      next unless last_block.is_a? FileBlock
-
-      first_free_space_index = blocks.index { |v| v.is_a? FreeSpace }
-
-      blocks[first_free_space_index] = last_block
-    end
-
-    blocks
-  end
 end
 
 class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompacting
