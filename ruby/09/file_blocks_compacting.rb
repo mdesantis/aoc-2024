@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 class FileBlocksCompacting
-  FileBlock = Data.define :file_id
+  FileBlock = Data.define(:file_id) do
+    def same_file_id?(other)
+      file_id == other.file_id
+    end
+  end
   FreeSpace = Data.define
 
   attr_reader :input_contents
@@ -82,9 +86,7 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
       .each_with_index
       .select { |(block, _)| block.is_a? FileBlock }
       .reverse_each
-      .chunk_while do |(block_before, _), (block_after, _)|
-      block_before.is_a?(FileBlock) && block_after.is_a?(FileBlock) && block_before.file_id == block_after.file_id
-    end
+      .chunk_while { |(file_block_before, _), (file_block_after, _)| file_block_before.same_file_id? file_block_after }
   end
 
   def first_corresponding_free_spaces(blocks, file_blocks_with_blocks_i_size)
