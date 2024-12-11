@@ -60,7 +60,6 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
 
   def compact_file_blocks(blocks)
     blocks = blocks.to_a
-
     file_blocks_with_the_same_file_id_chunks = chunk_by_file_block_with_same_file_id blocks
 
     file_blocks_with_the_same_file_id_chunks.each do |file_blocks_with_blocks_i|
