@@ -59,35 +59,46 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
   def compact_file_blocks(blocks)
     blocks = blocks.to_a
 
-    blocks_chunks = blocks
-      .each_with_index
-      .select { |(fbs, _)| fbs.is_a? FileBlock }
-      .reverse_each
-      .chunk_while do |(elt_before, _), (elt_after, _)|
-      elt_before.is_a?(FileBlock) && elt_after.is_a?(FileBlock) && elt_before.file_id == elt_after.file_id
-    end
+    file_blocks_with_the_same_file_id_chunks = group_consecutive_file_blocks_with_the_same_file_id_into_chunks blocks
 
-    blocks_chunks.each do |fbs_with_blocks_i|
-      fss_with_blocks_i =
-        blocks
-          .each_with_index
-          .each_cons(fbs_with_blocks_i.size)
-          .find { |v| v.all? { |(fbs, _)| fbs.is_a? FreeSpace } }
-          &.first
+    file_blocks_with_the_same_file_id_chunks.each do |file_blocks_with_blocks_i|
+      free_spaces_with_blocks_i = first_corresponding_free_spaces blocks, file_blocks_with_blocks_i.size
 
-      next unless fss_with_blocks_i
+      next unless free_spaces_with_blocks_i
 
-      first_fbs_i = fbs_with_blocks_i.last.last
-      fss_with_blocks_i => _, first_fs_i
+      first_file_block_blocks_i = file_blocks_with_blocks_i.last.last
+      free_spaces_with_blocks_i => _, first_free_space_blocks_i
 
-      next if first_fbs_i < first_fs_i
+      next if first_file_block_blocks_i < first_free_space_blocks_i
 
-      fbs_with_blocks_i.size.times do |i|
-        blocks[first_fs_i + i] = FileBlock[file_id: fbs_with_blocks_i.first.first.file_id]
-        blocks[fbs_with_blocks_i.last.last + i] = FreeSpace[]
-      end
+      swap_file_blocks_with_free_spaces blocks, file_blocks_with_blocks_i, first_free_space_blocks_i
     end
 
     blocks
+  end
+
+  def group_consecutive_file_blocks_with_the_same_file_id_into_chunks(blocks)
+    blocks
+      .each_with_index
+      .select { |(block, _)| block.is_a? FileBlock }
+      .reverse_each
+      .chunk_while do |(block_before, _), (block_after, _)|
+      block_before.is_a?(FileBlock) && block_after.is_a?(FileBlock) && block_before.file_id == block_after.file_id
+    end
+  end
+
+  def first_corresponding_free_spaces(blocks, file_blocks_with_blocks_i_size)
+    blocks
+      .each_with_index
+      .each_cons(file_blocks_with_blocks_i_size)
+      .find { |file_blocks| file_blocks.all? { |(file_block, _)| file_block.is_a? FreeSpace } }
+      &.first
+  end
+
+  def swap_file_blocks_with_free_spaces(blocks, file_blocks_with_blocks_i, first_free_space_blocks_i)
+    file_blocks_with_blocks_i.size.times do |i|
+      blocks[first_free_space_blocks_i + i] = FileBlock[file_id: file_blocks_with_blocks_i.first.first.file_id]
+      blocks[file_blocks_with_blocks_i.last.last + i] = FreeSpace[]
+    end
   end
 end
