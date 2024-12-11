@@ -68,6 +68,8 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
 
       next unless first_free_space_blocks_i
 
+      next if file_blocks_with_blocks_i.first.last < first_free_space_blocks_i
+
       swap_file_blocks_with_free_spaces blocks, file_blocks_with_blocks_i, first_free_space_blocks_i
     end
 
@@ -86,10 +88,7 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
     blocks
       .each_with_index
       .each_cons(file_blocks_with_blocks_i.size)
-      .find do |blocks_cons|
-        file_blocks_with_blocks_i.first.last > blocks_cons.first.last &&
-          blocks_cons.all? { |(block, _)| block.is_a? FreeSpace }
-      end&.first
+      .find { |blocks_cons| blocks_cons.all? { |(block, _)| block.is_a? FreeSpace } }&.first
   end
 
   def swap_file_blocks_with_free_spaces(blocks, file_blocks_with_blocks_i, first_free_space_blocks_i)
