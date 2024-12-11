@@ -95,11 +95,12 @@ class FileBlocksCompactingDealingWithFileSystemFragmentation < FileBlocksCompact
   end
 
   def swap_file_blocks_with_free_spaces(blocks, file_blocks_with_blocks_i, first_free_space_blocks_i)
-    file_blocks_with_blocks_i.size.times do |i|
-      file_blocks_with_blocks_i => [first_file_block, *_], *_
+    file_blocks_with_blocks_i => [first_file_block, *_], *_
+    file_blocks_with_blocks_i => *_, [*_, last_file_block_blocks_i]
 
+    file_blocks_with_blocks_i.size.times do |i|
       blocks[first_free_space_blocks_i + i] = FileBlock[file_id: first_file_block.file_id]
-      blocks[file_blocks_with_blocks_i.last.last + i] = FreeSpace[]
+      blocks[last_file_block_blocks_i + i] = FreeSpace[]
     end
   end
 end
