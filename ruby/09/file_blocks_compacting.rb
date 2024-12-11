@@ -35,6 +35,26 @@ class FileBlocksCompacting
   end
 
   def compact_file_blocks(blocks)
+    blocks.each_with_index do |block, i|
+      last_file_block = nil
+
+      next if !block.is_a?(FreeSpace) || !(last_file_block = pop_until_file_block(blocks))
+
+      blocks[i] = last_file_block
+    end
+
+    blocks
+  end
+
+  def pop_until_file_block(blocks)
+    while (block = blocks.pop)
+      return block if block.is_a?(FileBlock)
+    end
+
+    nil
+  end
+
+  def _compact_file_blocks(blocks)
     blocks.count { |v| v.is_a? FreeSpace }.times do
       last_block = blocks.pop
 
