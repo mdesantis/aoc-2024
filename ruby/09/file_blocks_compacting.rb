@@ -39,15 +39,11 @@ class FileBlocksCompacting
       next if blocks[i].is_a? FileBlock
 
       loop do
-        back = blocks.pop
+        last_block = blocks.pop
 
-        next if back.is_a? FreeSpace
+        next if last_block.is_a? FreeSpace
 
-        if blocks[i]
-          blocks[i] = back
-        else
-          blocks.push back
-        end
+        blocks[i] ? blocks[i] = last_block : blocks.push(last_block)
 
         break
       end
