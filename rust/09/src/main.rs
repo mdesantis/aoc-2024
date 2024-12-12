@@ -4,7 +4,7 @@ const INPUT_CONTENTS: &str = include_str!("../../../inputs/09/input");
 
 #[derive(Debug)]
 enum BlockEntry {
-    File { id: i64 },
+    FileId(i64),
     FreeSpace,
 }
 
@@ -22,7 +22,7 @@ fn blocks(input_contents: &str) -> Vec<BlockEntry> {
         let file_blocks_amount = char_to_i64(file_blocks_amount);
 
         for _ in 0..file_blocks_amount {
-            blocks.push(BlockEntry::File { id: file_id });
+            blocks.push(BlockEntry::FileId(file_id));
         }
 
         if chars.peek().is_none() {
@@ -51,7 +51,7 @@ fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
         if let BlockEntry::FreeSpace = block_entry {
             while let Some(last_block_entry) = blocks.pop() {
                 match last_block_entry {
-                    BlockEntry::File { id: _ } => {
+                    BlockEntry::FileId(_) => {
                         if blocks.get(i).is_some() {
                             blocks[i] = last_block_entry;
                         } else {
@@ -75,7 +75,7 @@ fn filesystem_checksum_after_file_blocks_compacting(input_contents: &str) -> i64
         .iter()
         .enumerate()
         .map(|(i, v)| match v {
-            BlockEntry::File { id } => (i as i64) * id,
+            BlockEntry::FileId(id) => (i as i64) * id,
             _ => unreachable!(),
         })
         .sum::<i64>()
@@ -83,7 +83,7 @@ fn filesystem_checksum_after_file_blocks_compacting(input_contents: &str) -> i64
 
 fn main() {
     let result = filesystem_checksum_after_file_blocks_compacting(INPUT_CONTENTS);
-    println!("Filesystem checksum after file blocks compacting: {result}");
+    println!("FileIdsystem checksum after file blocks compacting: {result}");
 }
 
 #[cfg(test)]
