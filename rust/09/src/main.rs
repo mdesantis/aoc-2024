@@ -1,4 +1,4 @@
-#![feature(iter_next_chunk)]
+#![feature(iter_next_chunk, let_chains)]
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/09/input");
 
@@ -50,19 +50,19 @@ fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
 
         if let BlockEntry::FreeSpace = block_entry {
             loop {
-                let last_block_entry = blocks.pop();
+                if let Some(last_block_entry) = blocks.pop() {
+                    match last_block_entry {
+                        BlockEntry::File { id: _ } => {
+                            if blocks.get(i).is_some() {
+                                blocks[i] = last_block_entry;
+                            } else {
+                                blocks.push(last_block_entry);
+                            }
 
-                match last_block_entry {
-                    Some(BlockEntry::File { id: _ }) => {
-                        if blocks.get(i).is_some() {
-                            blocks[i] = last_block_entry.unwrap();
-                        } else {
-                            blocks.push(last_block_entry.unwrap());
+                            break;
                         }
-
-                        break;
+                        _ => {}
                     }
-                    _ => {}
                 }
             }
         }
