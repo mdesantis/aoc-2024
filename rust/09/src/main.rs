@@ -1,5 +1,3 @@
-#![feature(iter_next_chunk)]
-
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/09/input");
 
 #[derive(Debug)]
@@ -25,14 +23,14 @@ fn blocks(input_contents: &str) -> Vec<BlockEntry> {
             blocks.push(BlockEntry::FileId(file_id));
         }
 
-        if chars.peek().is_none() {
+        if let Some(_) = chars.peek() {
+            let free_space_amount = char_to_i64(chars.next().unwrap());
+
+            for _ in 0..free_space_amount {
+                blocks.push(BlockEntry::FreeSpace)
+            }
+        } else {
             break;
-        }
-
-        let free_space_amount = char_to_i64(chars.next().unwrap());
-
-        for _ in 0..free_space_amount {
-            blocks.push(BlockEntry::FreeSpace)
         }
 
         file_id += 1;
@@ -80,7 +78,7 @@ fn filesystem_checksum_after_file_blocks_compacting(input_contents: &str) -> i64
 
 fn main() {
     let result = filesystem_checksum_after_file_blocks_compacting(INPUT_CONTENTS);
-    println!("FileIdsystem checksum after file blocks compacting: {result}");
+    println!("Filesystem checksum after file blocks compacting: {result}");
 }
 
 #[cfg(test)]
