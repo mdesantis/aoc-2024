@@ -6,27 +6,19 @@ enum BlockEntry {
     FreeSpace,
 }
 
-fn char_to_i64(c: char) -> i64 {
-    c.to_string().parse::<i64>().unwrap()
-}
-
 fn blocks(input_contents: &str) -> Vec<BlockEntry> {
-    let input_contents = input_contents.trim();
-    let mut chars = input_contents.char_indices().peekable();
     let mut blocks = vec![];
+    let mut chars = input_contents.trim().char_indices().peekable();
 
-    while let Some((i, file_blocks_amount)) = chars.next() {
-        let file_blocks_amount = char_to_i64(file_blocks_amount as char);
-        let file_id = (i as i64) / 2;
+    while let Some((i, file_blocks_amount_char)) = chars.next() {
+        let file_id = (i / 2) as i64;
 
-        for _ in 0..file_blocks_amount {
+        for _ in 0..file_blocks_amount_char.to_digit(10).unwrap() {
             blocks.push(BlockEntry::FileId(file_id));
         }
 
         if let Some((_, free_space_amount_char)) = chars.peek() {
-            let free_space_amount = char_to_i64(*free_space_amount_char);
-
-            for _ in 0..free_space_amount {
+            for _ in 0..free_space_amount_char.to_digit(10).unwrap() {
                 blocks.push(BlockEntry::FreeSpace)
             }
 
