@@ -33,24 +33,23 @@ fn blocks(input_contents: &str) -> Vec<BlockEntry> {
 
 fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
     for i in 0..blocks.len() {
-        let block_entry = match blocks.get(i) {
-            Some(block_entry) => block_entry,
-            _ => break,
-        };
+        match blocks.get(i) {
+            Some(block_entry) if matches!(block_entry, BlockEntry::FreeSpace) => {
+                while let Some(last_block_entry) = blocks.pop() {
+                    if let BlockEntry::FileId(_) = last_block_entry {
+                        if let Some(_) = blocks.get(i) {
+                            blocks[i] = last_block_entry;
+                        } else {
+                            blocks.push(last_block_entry);
+                        }
 
-        if let BlockEntry::FreeSpace = block_entry {
-            while let Some(last_block_entry) = blocks.pop() {
-                if let BlockEntry::FileId(_) = last_block_entry {
-                    if let Some(_) = blocks.get(i) {
-                        blocks[i] = last_block_entry;
-                    } else {
-                        blocks.push(last_block_entry);
+                        break;
                     }
-
-                    break;
                 }
             }
-        }
+            Some(_) => {}
+            _ => break,
+        };
     }
 }
 
