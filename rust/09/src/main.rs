@@ -12,28 +12,28 @@ fn char_to_i64(c: char) -> i64 {
 
 fn blocks(input_contents: &str) -> Vec<BlockEntry> {
     let input_contents = input_contents.trim();
-    let mut chars = input_contents.chars().peekable();
+    let mut chars = input_contents.char_indices().peekable();
     let mut blocks = vec![];
-    let mut file_id = 0;
 
-    while let Some(file_blocks_amount) = chars.next() {
-        let file_blocks_amount = char_to_i64(file_blocks_amount);
+    while let Some((i, file_blocks_amount)) = chars.next() {
+        let file_blocks_amount = char_to_i64(file_blocks_amount as char);
+        let file_id = (i as i64) / 2;
 
         for _ in 0..file_blocks_amount {
             blocks.push(BlockEntry::FileId(file_id));
         }
 
-        if let Some(_) = chars.peek() {
-            let free_space_amount = char_to_i64(chars.next().unwrap());
+        if let Some((_, free_space_amount_char)) = chars.peek() {
+            let free_space_amount = char_to_i64(*free_space_amount_char);
 
             for _ in 0..free_space_amount {
                 blocks.push(BlockEntry::FreeSpace)
             }
+
+            chars.next();
         } else {
             break;
         }
-
-        file_id += 1;
     }
 
     blocks
