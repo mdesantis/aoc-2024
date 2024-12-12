@@ -2,7 +2,7 @@
 
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/09/input");
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 enum BlockEntry {
     File { id: i64 },
     FreeSpace,
@@ -58,7 +58,7 @@ fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
         loop {
             let back = blocks.pop().unwrap();
 
-            if back == BlockEntry::FreeSpace {
+            if let BlockEntry::FreeSpace = back {
                 continue;
             }
 
