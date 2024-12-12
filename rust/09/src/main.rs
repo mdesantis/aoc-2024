@@ -34,6 +34,7 @@ fn blocks(input_contents: &str) -> Vec<BlockEntry> {
 fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
     for i in 0..blocks.len() {
         match blocks.get(i) {
+            None => break,
             Some(block_entry) if matches!(block_entry, BlockEntry::FreeSpace) => {
                 while let Some(last_block_entry) = blocks.pop() {
                     if let BlockEntry::FileId(_) = last_block_entry {
@@ -47,8 +48,7 @@ fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
                     }
                 }
             }
-            Some(_) => {}
-            _ => break,
+            _ => (),
         };
     }
 }
