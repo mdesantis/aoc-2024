@@ -3,8 +3,8 @@
 const INPUT_CONTENTS: &str = include_str!("../../../inputs/09/input");
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum BlockType {
-    FileId,
+enum BlockEntry {
+    File { id: i64 },
     FreeSpace,
 }
 
@@ -12,7 +12,7 @@ fn char_to_i64(c: char) -> i64 {
     c.to_string().parse::<i64>().unwrap()
 }
 
-fn blocks(input_contents: &str) -> Vec<(BlockType, Option<i64>)> {
+fn blocks(input_contents: &str) -> Vec<BlockEntry> {
     let input_contents = input_contents.trim();
     let mut chars = input_contents.chars().peekable();
     let mut blocks = vec![];
@@ -22,7 +22,7 @@ fn blocks(input_contents: &str) -> Vec<(BlockType, Option<i64>)> {
         let file_blocks_amount = char_to_i64(file_blocks_amount);
 
         for _ in 0..file_blocks_amount {
-            blocks.push((BlockType::FileId, Some(file_id)));
+            blocks.push(BlockEntry::File { id: file_id });
         }
 
         if chars.peek().is_none() {
@@ -32,7 +32,7 @@ fn blocks(input_contents: &str) -> Vec<(BlockType, Option<i64>)> {
         let free_space_amount = char_to_i64(chars.next().unwrap());
 
         for _ in 0..free_space_amount {
-            blocks.push((BlockType::FreeSpace, None))
+            blocks.push(BlockEntry::FreeSpace)
         }
 
         file_id += 1;
@@ -41,7 +41,7 @@ fn blocks(input_contents: &str) -> Vec<(BlockType, Option<i64>)> {
     blocks
 }
 
-fn compact_file_blocks(blocks: &mut Vec<(BlockType, Option<i64>)>) {
+fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
     for i in 0..blocks.len() {
         let maybe_v = blocks.get(i);
 
@@ -51,14 +51,14 @@ fn compact_file_blocks(blocks: &mut Vec<(BlockType, Option<i64>)>) {
 
         let v = *maybe_v.unwrap();
 
-        if v.0 == BlockType::FileId {
+        if let BlockEntry::File { id: _ } = v {
             continue;
         }
 
         loop {
             let back = blocks.pop().unwrap();
 
-            if back.0 == BlockType::FreeSpace {
+            if back == BlockEntry::FreeSpace {
                 continue;
             }
 
@@ -80,7 +80,10 @@ fn filesystem_checksum_after_file_blocks_compacting(input_contents: &str) -> i64
     blocks
         .iter()
         .enumerate()
-        .map(|(i, (_, v))| (i as i64) * v.unwrap())
+        .map(|(i, v)| match v {
+            BlockEntry::File { id } => (i as i64) * id,
+            _ => unreachable!(),
+        })
         .sum::<i64>()
 }
 
