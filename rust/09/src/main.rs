@@ -49,20 +49,18 @@ fn compact_file_blocks(blocks: &mut Vec<BlockEntry>) {
         };
 
         if let BlockEntry::FreeSpace = block_entry {
-            loop {
-                if let Some(last_block_entry) = blocks.pop() {
-                    match last_block_entry {
-                        BlockEntry::File { id: _ } => {
-                            if blocks.get(i).is_some() {
-                                blocks[i] = last_block_entry;
-                            } else {
-                                blocks.push(last_block_entry);
-                            }
-
-                            break;
+            while let Some(last_block_entry) = blocks.pop() {
+                match last_block_entry {
+                    BlockEntry::File { id: _ } => {
+                        if blocks.get(i).is_some() {
+                            blocks[i] = last_block_entry;
+                        } else {
+                            blocks.push(last_block_entry);
                         }
-                        _ => {}
+
+                        break;
                     }
+                    _ => {}
                 }
             }
         }
