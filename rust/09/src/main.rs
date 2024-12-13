@@ -85,14 +85,14 @@ fn files(blocks: &mut Vec<BlockEntry>) -> Vec<File> {
         })
         .rev()
         .peekable();
-    let mut vec = vec![];
+    let mut files = vec![];
     let mut size = 1;
 
     while let Some((i, file_id)) = iter.next() {
         match iter.peek() {
             Some((_, peek_file_id)) if file_id == *peek_file_id => size += 1,
             _ => {
-                vec.push(File {
+                files.push(File {
                     size,
                     start_index: i,
                 });
@@ -101,7 +101,7 @@ fn files(blocks: &mut Vec<BlockEntry>) -> Vec<File> {
         }
     }
 
-    vec
+    files
 }
 
 fn free_spaces_suitable_for_compacting_start_index(
