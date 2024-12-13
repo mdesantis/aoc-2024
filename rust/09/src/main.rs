@@ -8,6 +8,12 @@ enum BlockEntry {
     FreeSpace,
 }
 
+#[derive(Debug)]
+struct File {
+    start_index: usize,
+    size: usize,
+}
+
 fn blocks(input_contents: &str) -> Vec<BlockEntry> {
     let mut blocks = vec![];
     let mut chars = input_contents.trim().char_indices().peekable();
@@ -69,12 +75,6 @@ fn filesystem_checksum_after_file_blocks_compacting(input_contents: &str) -> i64
         .sum::<i64>()
 }
 
-#[derive(Debug)]
-struct File {
-    start_index: usize,
-    size: usize,
-}
-
 fn files(blocks: &mut Vec<BlockEntry>) -> Vec<File> {
     let mut iter = blocks
         .iter()
@@ -114,9 +114,10 @@ fn free_spaces_suitable_for_compacting_start_index(
 
     for (i, v) in blocks.iter().enumerate() {
         if let BlockEntry::FreeSpace = v {
-            if start_index.is_none() {
+            if let None = start_index {
                 start_index = Some(i);
             }
+
             count += 1;
 
             if count == size {
@@ -146,10 +147,15 @@ fn compact_files(blocks: &mut Vec<BlockEntry>) {
     }
 }
 
-fn swap_file_blocks_with_free_spaces(blocks: &mut Vec<BlockEntry>, file: &File, fsi: usize) {
-    for (file_block_index, free_space_index) in
-        (file.start_index..(file.start_index + file.size)).zip(fsi..(fsi + file.size))
-    {
+fn swap_file_blocks_with_free_spaces(
+    blocks: &mut Vec<BlockEntry>,
+    file: &File,
+    free_space_index: usize,
+) {
+    let file_blocks_indexes = file.start_index..(file.start_index + file.size);
+    let free_spaces_indexes = free_space_index..(free_space_index + file.size);
+
+    for (file_block_index, free_space_index) in file_blocks_indexes.zip(free_spaces_indexes) {
         blocks.swap(file_block_index, free_space_index);
     }
 }
