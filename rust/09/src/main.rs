@@ -89,21 +89,15 @@ fn files(blocks: &mut Vec<BlockEntry>) -> Vec<File> {
     let mut size = 1;
 
     while let Some((i, file_id)) = iter.next() {
-        if let Some((_, peek_file_id)) = iter.peek() {
-            if file_id == *peek_file_id {
-                size += 1;
-            } else {
+        match iter.peek() {
+            Some((_, peek_file_id)) if file_id == *peek_file_id => size += 1,
+            _ => {
                 vec.push(File {
                     size,
                     start_index: i,
                 });
                 size = 1;
             }
-        } else {
-            vec.push(File {
-                size,
-                start_index: i,
-            });
         }
     }
 
