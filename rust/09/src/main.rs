@@ -109,19 +109,17 @@ fn free_spaces_suitable_for_compacting_start_index(
     file: &File,
 ) -> Option<usize> {
     let size = file.size;
-    let mut iter = blocks.iter().enumerate();
     let mut count = 0;
     let mut start_index = None;
 
-    while let Some((i, v)) = iter.next() {
-        if matches!(v, BlockEntry::FreeSpace) {
-            count += 1;
-
+    for (i, v) in blocks.iter().enumerate() {
+        if let BlockEntry::FreeSpace = v {
             if start_index.is_none() {
                 start_index = Some(i);
             }
+            count += 1;
 
-            if size == count {
+            if count == size {
                 return start_index;
             }
         } else {
